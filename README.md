@@ -11,8 +11,12 @@ It is built upon the original AIRSS package and is fully compatible with the lat
 ```mermaid
 flowchart
 
-A[PC]
-B[Server]
+A[PC] --> B[Server]
+
+B -->|job| W1[Worker1]
+B -->|job| W2[Worker2]
+B -->|job| W2[Worker3]
+B -->|job| W2[Worker4]
 ```
 
 ## Requirements
