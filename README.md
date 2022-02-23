@@ -15,8 +15,8 @@ A[PC] --> B[Server]
 
 B -->|job| W1[Worker1]
 B -->|job| W2[Worker2]
-B -->|job| W2[Worker3]
-B -->|job| W2[Worker4]
+B -->|job| W3[Worker3]
+B -->|job| W4[Worker4]
 ```
 
 ## Requirements
