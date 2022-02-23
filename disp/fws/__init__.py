@@ -1,0 +1,3 @@
+"""
+Fireworks subpackage
+"""

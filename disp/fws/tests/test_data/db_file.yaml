@@ -1,0 +1,6 @@
+host: localhost
+port: 27017
+database: disp-db-testing
+collection: airss-test
+user: null
+password: null
