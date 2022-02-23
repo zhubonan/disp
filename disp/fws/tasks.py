@@ -306,6 +306,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
     shebang = '#!/bin/bash -l'
     run_script_name = 'jobscript.sh'
     code_string = 'castep_relax'  # Identifier for which code is running
+    _param_suffix = '.param'
 
     # pylint: disable=attribute-defined-outside-init
     def _init_parameters(self, fw_spec):
@@ -370,7 +371,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
     def _prepare_inputs(self, struct_name):
         """Write the input files"""
         cell_name = struct_name + '.cell'
-        param_name = struct_name + '.param'
+        param_name = struct_name + self._param_suffix
         # Only write if there is no file
         if not Path(cell_name).is_file():
             with open(cell_name, 'w') as fhandle:
@@ -804,6 +805,7 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
     SHCEUDLER_TIME_OFFSET = 10
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
     code_string = 'gulp_relax'  # Identifier for which code is running
+    _param_suffix = '.lib'
 
     def _get_cmd(self):
         """Construct the command line arguments"""
@@ -849,7 +851,7 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
     def _handle_relax_timeout(self, fw_spec):
         """
         Handle the case where relaxation is timedout, this is a simple retry"""
-        new_task = AirssGulpRelaxTask(param_content=self['param_content'],
+        new_task = self.__class__(param_content=self['param_content'],
                                       cycles=self.cycles,
                                       executable=self['executable'])
         transport_task = AirssDataTransferTask()
@@ -873,15 +875,45 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
             if fw_spec.get('gzip_folder') is True:
                 tasks.append(GzipDir())
 
-            detours = [Firework(tasks, spec=new_spec, name='GulpRelaxRestart')]
+            detours = [Firework(tasks, spec=new_spec, name=self.__class__.name + 'Restart')]
 
         return FWAction(stored_data=stored_data, detours=detours)
 
-    def _prepare_inputs(self, struct_name):
-        """Write the input files"""
-        super(AirssGulpRelaxTask, self)._prepare_inputs(struct_name)
-        # Note that `gulp_relax` takes the library from SEED.lib
-        shutil.move(self.struct_name + '.param', self.seed_name + '.lib')
+
+@explicit_serialize
+class AirssPp3RelaxTask(AirssGulpRelaxTask):
+    """
+    Relaxation using pp3
+
+    Invoke `pp3_relax` to perform relaxation using pair potentials
+    It is assumed that pp3 relaxation will always finish
+
+    Optional parameters:
+    - prepend_command: A list of commands to be run before the relaxation, such as loading required modules.
+      Can also be defined at a per-worker basis using `gulp_relax_prepend_command` under the `env` field.
+    - append_command: A list of commands to be run after the relaxation, such as cleaning certain files.
+      Can also be defined at a per-worker basis using `gulp_relax_append_command` under the `env` field.
+
+    """
+
+    #_fw_name = 'GulpRelaxTask'
+    required_params = ['cycles', 'param_content', 'executable']
+    optional_params = ['minimum_run_time', 'prepend_command', 'append_command']
+    MINIMUM_RUN_TIME = 10
+    SHCEUDLER_TIME_OFFSET = 10
+    logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
+    code_string = 'pp3_relax'  # Identifier for which code is running
+    _param_suffix = '.pp'
+
+    def _get_cmd(self):
+        """Construct the command line arguments"""
+        # NOTE: this assumes that we are working with a periodic system and
+        # zero pressure
+        cmd = [
+            'pp3_relax', self.executable, '0',
+            str(self.pressure), self.struct_name
+        ]
+        return cmd
 
 
 @explicit_serialize
