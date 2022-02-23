@@ -21,6 +21,7 @@ doc = [
     "sphinx", "sphinx-rtd-theme"
 ]
 test = ["pytest"]
+vasp = ["atomate]
 
 [project.scripts]
 ggulp = "disp.cli.cmd_ggulp:main"
