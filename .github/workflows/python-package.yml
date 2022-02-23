@@ -34,8 +34,8 @@ jobs:
 
     - name: Install AIRSS
       run: |
-        sudo apt-get install gfortran liblapack-dev wget
-        wget -o airss-0.9.1.tar.gz https://www.dropbox.com/s/rdyq8df2kr8k77b/airss-0.9.1.tar.gz?dl=1
+        sudo apt-get install gfortran liblapack-dev
+        wget -O airss-0.9.1.tar.gz https://www.dropbox.com/s/rdyq8df2kr8k77b/airss-0.9.1.tar.gz?dl=1
         tar zxf airss-0.9.1.tar.gz
         cd airss-0.9.1/
         make buildcell
