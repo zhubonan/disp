@@ -28,16 +28,14 @@ This, however, turned out to be not so trivial and may involve significant amoun
 The root of the problem is the vast configurational spaces to be explored - for a periodic system with N atoms there are 3N + 1 dimensions,
 making locating the global minimum, or points having similar energy to the global minimum challenging.
 
-Fortunately, many approaches have been developed to tackle this problem. They involves:
+Fortunately, many approaches have been developed to tackle this problem.
 
-- Simulated annealing
-- Basin hopping
-- Minimum hopping
-- Genetic algorithms
-- Particle swarm optimisation 
-- Random search
-
-A review of modern crystal structure prediction can be found here. 
+* Simulated annealing
+* Basin hopping
+* Minimum hopping
+* Genetic algorithms
+* Particle swarm optimisation 
+* Random search
 
 The word "crystal structure prediction", sometimes also refers to those based on subsituting species in known structures from databases, usually coupled with machine learning.
 While they offers essentially cost-free predictions for a given composition, they are mostly applicable to systems that are well studied and have many experimental data available.
@@ -88,53 +86,5 @@ This means that for random searching:
 - A further consequence is that the DFT calculations can be performed at relatively low basis set qulaity and accuracy to maximise the speed, usually at several times lower in the cost compared to normal calculations.
 - In addition, most structures include and perserv symmetry operations throughout the process, which can be used to speed-up DFT calculations by several folds.
 
-
-=====================
-The ``AIRSS`` package
-=====================
-
-
-The ``AIRSS`` package is a open-source collection of tools and scripts for performing *ab initio* random structure searching (AIRSS) (which confusinly has the same name),
-and analysing the results.
-The key components of this package includes:
-
-buildcell
-  The main work horse for generating structures. This file reads a input *seed* file from stdin and outputs generated structuer in stdout.
-  Both input and outputs files are in the CASTEP's ``cell`` format, and the former contains special directives on how the random Structure
-  should be generated.
-
-airss.pl
-  The main driver script for performing the search. It read command line arguments and performs random structure generation and runs DFT calculations in serial,
-  and stop until the specified number of structure has been generated.
-  Because the search is embarrsingly parallel, one can just launch as many ``airss.pl`` as they like to occupy all computational resources.
-  For example, to sample 800 structure using 128 cores, one can launch 8 ``airss.pl`` script each using 16 cores and sampling 100 structures.
-  The result of ``airss.pl`` are saved in the SHELX format with suffix ``res``. 
-  These files contains both the crystal structure and the calculated quantities.
-  While ``DISP`` does not use this script directly, it is recommanded that the user familiarise themselves with operating ``AIRSS`` using it.
-
-cryan
-  A tool to analyse the relaxed structures. It can be used to rank structures according to energy as well as eliminating nearly identical structures
-  and extracting species-wise minimum distances.
-  It also has many other advanced features as such decomposing a structure into modular units.
- 
-cabal
-  A tool for convert different file formats. It is used internally by various scripts. One very useful feature is to convert file into SHELX format so they
-  can be processed by ``cryan``.
-
-castep_relax
-  The driver script for performing geometry optimisation using CASTEP. The use of this script is needed because CASTEP defaults to constant-cut off energy
-  variable cell optionsation. For high-throughput operation the more traditional constant basis optimisation is more efficeint, but t requires multiple restarts
-  to reach convergence. This script does exactly this jobs - it restarts CASTEP relaxation up to defined iterations or until the converged is reached twice in succession.
-  This script is used by ``DISP`` to perform CASTEP relaxations.
-
-This package extends the search ability in ``AIRSS`` to allow a client-server based workflow for directing massive parallel search at run time. 
-The ``AIRSS`` package must be installed on  **both** the local and the remote machines.
-Similar to the ``airss.pl`` script, the ``castep_relax`` script is invoked for relaxation with CASTEP in ``DISP``. 
-The output file is stored in the SHELX format that is compatible with the ``cryan`` tool. 
-The input and output files used here are aimed to be fully compatible with the original ``AIRSS`` package.
-
-
-
 .. [#pickard_2006] Pickard, C. J.; Needs, R. J. High-Pressure Phases of Silane. Phys. Rev. Lett. 2006, 97 (4), 045504. https://doi.org/10.1103/PhysRevLett.97.045504.
-
 .. [#pickard_2011] Pickard, C. J.; Needs, R. J. Ab Initio Random Structure Searching. Journal of physics. Condensed matter : an Institute of Physics journal 2011, 23 (5), 053201–053201. https://doi.org/10.1088/0953-8984/23/5/053201.

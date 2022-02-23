@@ -2,6 +2,46 @@
 Introduction
 ============
 
+The ``AIRSS`` package is a open-source collection of tools and scripts for performing *ab initio* random structure searching (AIRSS) (which confusinly has the same name),
+and analysing the results.
+The key components of this package includes:
+
+buildcell
+  The main work horse for generating structures. This file reads a input *seed* file from stdin and outputs generated structuer in stdout.
+  Both input and outputs files are in the CASTEP's ``cell`` format, and the former contains special directives on how the random Structure
+  should be generated.
+
+airss.pl
+  The main driver script for performing the search. It read command line arguments and performs random structure generation and runs DFT calculations in serial,
+  and stop until the specified number of structure has been generated.
+  Because the search is embarrsingly parallel, one can just launch as many ``airss.pl`` as they like to occupy all computational resources.
+  For example, to sample 800 structure using 128 cores, one can launch 8 ``airss.pl`` script each using 16 cores and sampling 100 structures.
+  The result of ``airss.pl`` are saved in the SHELX format with suffix ``res``. 
+  These files contains both the crystal structure and the calculated quantities.
+  While ``DISP`` does not use this script directly, it is recommanded that the user familiarise themselves with operating ``AIRSS`` using it.
+
+cryan
+  A tool to analyse the relaxed structures. It can be used to rank structures according to energy as well as eliminating nearly identical structures
+  and extracting species-wise minimum distances.
+  It also has many other advanced features as such decomposing a structure into modular units.
+ 
+cabal
+  A tool for convert different file formats. It is used internally by various scripts. One very useful feature is to convert file into SHELX format so they
+  can be processed by ``cryan``.
+
+castep_relax
+  The driver script for performing geometry optimisation using CASTEP. The use of this script is needed because CASTEP defaults to constant-cut off energy
+  variable cell optionsation. For high-throughput operation the more traditional constant basis optimisation is more efficeint, but t requires multiple restarts
+  to reach convergence. This script does exactly this jobs - it restarts CASTEP relaxation up to defined iterations or until the converged is reached twice in succession.
+  This script is used by ``DISP`` to perform CASTEP relaxations.
+
+This package extends the search ability in ``AIRSS`` to allow a client-server based workflow for directing massive parallel search at run time. 
+The ``AIRSS`` package must be installed on  **both** the local and the remote machines.
+Similar to the ``airss.pl`` script, the ``castep_relax`` script is invoked for relaxation with CASTEP in ``DISP``. 
+The output file is stored in the SHELX format that is compatible with the ``cryan`` tool. 
+The input and output files used here are aimed to be fully compatible with the original ``AIRSS`` package.
+
+
 In this section, we give an brief introduction of the ``airss`` package and various search related settings.
 Most of the contents are not specific to DISP and also apply when search with ``airss`` package along.
 
@@ -96,4 +136,5 @@ However, for a single search, ones still have to have a stopping criteria.
 .. [#pickard_2011] Pickard, C. J.; Needs, R. J. Ab Initio Random Structure Searching. Journal of physics. Condensed matter : an Institute of Physics journal 2011, 23 (5), 053201–053201. https://doi.org/10.1088/0953-8984/23/5/053201.
 .. [#zhu_2020] Section 4.2.2, https://doi.org/10.17863/CAM.55681
 .. [#pyxtal] Figure 7, https://doi.org/10.1016/j.cpc.2020.107810
-.. [#castep] Academic license for CASTEP can be obtained free of charge, see http://www.castep.org.
+.. [#pickard_2006] Pickard, C. J.; Needs, R. J. High-Pressure Phases of Silane. Phys. Rev. Lett. 2006, 97 (4), 045504. https://doi.org/10.1103/PhysRevLett.97.045504.
+.. [#castep] http://www.castep.org

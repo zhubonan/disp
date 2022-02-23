@@ -24,7 +24,7 @@ Typically, the search is done with calculations optimised for speed rather than 
 DISP also supports directly launching these workloads using CASTEP and VASP (through `automate`_).
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
    
    getting_started/index

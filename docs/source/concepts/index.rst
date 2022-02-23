@@ -4,6 +4,7 @@ Concepts
 --------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    structure_searching
+   workflow_engine
