@@ -46,11 +46,11 @@ jobs:
         cp src/cryan/src/cryan bin/
         cp src/cabal/src/cabal bin/
         cp src/pp3/src/pp3 bin/
-        cd ../../
+        cd ../
 
     - name: Test with pytest
       run: |
-        export PATH=`pwd`/external/airss-0.9.1/bin:$PATH
+        export PATH=`pwd`/airss-0.9.1/bin:$PATH
         pytest
 
   doc:

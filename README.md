@@ -19,7 +19,7 @@ W1;
 W2;
 end
 
-subgraph HPC2
+subgraph HPC
 W3;
 W4;
 end
@@ -68,12 +68,12 @@ disp db retrieved-project
 ```
 
 
-## Other Packages 
+## Other resources 
 
 - AIRSS code: https://www.mtg.msm.cam.ac.uk/Codes/AIRSS 
+- Documentation for AIRSS: https://airss-docs.github.io/
 - metador - high throughput CASTEP geometry optimisation and analysis: https://github.com/ml-evs/matador
 - aiida-fireworks-scheduler - for running standard AiiDA workflow alongside structure prediction workload from this package : https://github.com/zhubonan/aiida-fireworks-scheduler
-
 
 ## Reference
 
