@@ -1,6 +1,10 @@
-# Ground state of Lennard-Jones solid
+# Ground state of a Lennard-Jones solid
 
-In this example we will search for the ground state of a Lennard-Jones solid following the example 1.1 in the AIRSS pacakge itself.
+!!! tip
+
+    This example can be run on a laptop, no DFT calculation is involved
+
+In this example we will search for the ground state of a Lennard-Jones solid following the example 1.1 in the AIRSS pacakge itself (see https://airss-docs.github.io/tutorials/examples/).
 
 The cell is chosen randomly with a volume of 8 Ang^3 per atom, and 8 atoms are placed into the cell.
 A minimum separation of 1.5 A is enforced when generating the structure.

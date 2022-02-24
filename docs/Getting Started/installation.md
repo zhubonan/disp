@@ -115,10 +115,7 @@ The location of `FW_config.yaml` is determined from `$FW_CONFIG_FILE`, and the l
 Typically, the `disp_db.yaml` is in the same folder as `FW_config.yaml`.
 
 When you launch a search through DISP, a `project_name` is passed, and it is used as a relative path insdie `airss-datastore` for storing detailed DFT output.
-
-!!! example
-
-    Data of project `C2/100GPa/run1` will be placed into `<BASE_PATH>/airss-datastore/C2/100GPa/run1`
+For example, search data from project `C2/100GPa/run1` will be placed into `<BASE_PATH>/airss-datastore/C2/100GPa/run1`
 
 !!! note 
 
@@ -141,7 +138,7 @@ The AIRSS code can be downloaded from: https://www.mtg.msm.cam.ac.uk/Codes/AIRSS
 
 Note that for the 0.9.1 version the `external/spglib/makefile` needs to be updated.
 
-??? code "external/spglib/makefile"
+??? code "Updated external/spglib/makefile"
 
     ```
     .DEFAULT:
@@ -179,10 +176,10 @@ Note that for the 0.9.1 version the `external/spglib/makefile` needs to be updat
 Afterwards, `make && make install` will compile and install the executables to `bin` inside the code folder.
 You will need to add the `bin` folder to your `PATH` variable.
 
+Finally, check that AIRSS is working with `make check`.
+AIRSS should be installed on any computer that runs structure search workload.
 
 !!! note
 
-    You may want to us a newer version of AIRSS if possible.
+    You may want to use a newer version of AIRSS if possible.
 
-Finally, check that AIRSS is working with `make check`.
-AIRSS should be installed on any computer that runs structure search workload.
