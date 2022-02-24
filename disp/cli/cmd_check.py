@@ -70,10 +70,14 @@ def database(ctx, past_days):
     lpad = ctx.obj.get('lpad_file', LAUNCHPAD_LOC)
     obj: LaunchPad = LaunchPad.from_file(lpad)
     try:
-        ndoc = obj.fireworks.find_one({})
+        ids = obj.get_fw_ids({}, limit=1)
     except:
         click.echo("Cannot connect to the LaunchPad server")
+    out = obj.fw_id_assigner.find({}).count()
     click.echo("Confection to the LaunchPad server successful: OK\n")
+
+    if out == 0:
+        click.echo("ERROR: Fireworks not initialised - `lpad reset` needs to be run.\n")
 
     click.echo(f'Default launchpad file located at: {LAUNCHPAD_LOC}')
     click.echo(f'Current launchpad file: {Path(lpad).absolute()}')
