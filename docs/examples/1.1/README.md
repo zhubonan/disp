@@ -4,22 +4,41 @@ In this example we will search for the ground state of a Lennard-Jones solid fol
 
 The cell is chosen randomly with a volume of 8 Ang^3 per atom, and 8 atoms are placed into the cell.
 A minimum separation of 1.5 A is enforced when generating the structure.
+
+???+ example "Al.cell"
+
+    ```
+    %BLOCK LATTICE_CART
+    2 0 0
+    0 2 0
+    0 0 2 
+    %ENDBLOCK LATTICE_CART
+    
+    %BLOCK POSITIONS_FRAC
+    Al 0.0 0.0 0.0 # Al1 % NUM=8
+    %ENDBLOCK POSITIONS_FRAC
+
+    #MINSEP=1.5
+    ```
+
 Note that there is a only a single entry in the `POSITIONS_FRAC` block with `NUM=8`.
 This syntex allows the volume of the cell to be scaled automatically - the *apparent* volume is for the *apparent* number of atoms in the `POSITIONS_FRAC` block. 
 To search a 16-atom cell, simply change `NUM=8` to `NUM=16`.
 
 The pair potential infromation is stored in the `Al.pp` file.
 
-```
-1 12 6 2.5
-Al
-# Epsilon
-1
-# Sigma
-2
-# Beta
-1
-```
+???+ example "Al.pp"
+
+    ```
+    1 12 6 2.5
+    Al
+    # Epsilon
+    1
+    # Sigma
+    2
+    # Beta
+    1
+    ```
 
 The 12 and 6 in the first line are the exponentials, making this a Lennard-Jones potentials, 
 followed by the cut off distance in the unit of *sigma*.  
@@ -142,6 +161,11 @@ rlaunch rapidfire
 ```
 
 The first line is important as it sets the environmental variable so the *worker* knows which database to upload the completed structures to.
+
+In production search using DFT calculations, we need to run `rlaunch` from inside a job script.
+However, because Fireworks does it deal with walltime limits, an extended launcher `trlaunch` should be used instead.
+This way the remaining walltime limit will be taken into consideration. 
+
 
 Now you can inspect the results with:
 

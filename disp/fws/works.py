@@ -32,6 +32,7 @@ class AirssSearchFW(Firework):
                  modcell_content=None,
                  modcell_name=None,
                  code='castep',
+                 walltime_seconds=600,
                  **kwargs):
         """
         Initialise a AirssSearchFW instance
@@ -46,6 +47,7 @@ class AirssSearchFW(Firework):
             'record_db': record_db,
             'seed_name': seed_name,
             'project_name': project_name,
+            '_walltime_seconds': walltime_seconds
         }
         spec.update(_default)
 
@@ -121,6 +123,7 @@ class RelaxFW(Firework):
                  existing_spec=None,
                  name=None,
                  code='castep',
+                 walltime_seconds=600,
                  **kwargs):
         """
         Initialise a AirssSearchFW instance
@@ -140,6 +143,7 @@ class RelaxFW(Firework):
             'struct_content': struct_content,
             'project_name': project_name,
             'seed_name': seed_name,
+            '_walltime_seconds': walltime_seconds
         })
 
         if code == 'castep':

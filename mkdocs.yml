@@ -6,7 +6,7 @@ nav:
   - Getting Started: 
     - Installation: "Getting Started/installation.md"
     - Tutorial: 
-      - example: "examples/1.1/README.md"
+      - Lennard-Jones Solid: "examples/1.1/README.md"
   - Background:
     - Crystal Structure Prediction: "background/structure_searching.md"
     - AIRSS: "background/airss.md"
