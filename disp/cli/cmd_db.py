@@ -177,7 +177,7 @@ def summary(db_obj, project, state, seed, per_project, workflows,
 def throughput(db_obj, group_by, past_days, projects, seeds, aggregate, plot,
                csv, atomate):
     """
-    Display a summary of number of structures in the database
+    Summarise search throughput in certain past period
     """
     import pandas as pd
     import sys
@@ -198,7 +198,7 @@ def throughput(db_obj, group_by, past_days, projects, seeds, aggregate, plot,
     if dataframe is None:
         click.echo(f"No results found for the past {24 * past_days:.0f} hours.")
         return 
-        
+
     cols = ['/'.join(col.split('/')[-2:]) for col in dataframe.columns]
     dataframe.columns = cols
     dataframe.fillna(0.0, inplace=True)
@@ -218,7 +218,7 @@ def throughput(db_obj, group_by, past_days, projects, seeds, aggregate, plot,
 @pass_db_obj
 def build_index(db_obj, additional_field):
     """
-    Display a summary of number of structures in the database
+    Build the index for optimum query performance
     """
     click.echo(
         f'Requested to build the indices including additional fields: {additional_field}'
@@ -347,7 +347,7 @@ def launch_dirs(db_obj, project, seed, query, state, raw, pull, pull_mapping):
 @pass_db_obj
 def launch_stats(db_obj, project, seed, query, state, cycles):
     """
-    Obtain statistics of the runs using snapshots pulled down to
+    (experimental) Obtain statistics of the runs using snapshots pulled down to
     the local directory.
     """
     import pandas as pd

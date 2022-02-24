@@ -10,13 +10,10 @@ from disp.database import SearchDB, SeedFile, ResFile, InitialStructureFile, Par
 TEST_DB_NAME = 'disp-db-testing'
 TEST_COLLECTION = 'airss-test'
 
-MODULE_DIR = Path(__file__).parent
-DATA_DIR = MODULE_DIR / 'test_data'
 
-
-def test_from_db_file():
+def test_from_db_file(datapath):
     """Test instantiate SearchDB from a yaml file"""
-    searchdb = SearchDB.from_db_file(DATA_DIR / 'disp_db.yaml')
+    searchdb = SearchDB.from_db_file(datapath / 'disp_db.yaml')
     assert searchdb.user is None
     assert searchdb.host == 'localhost'
     assert searchdb.database

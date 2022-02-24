@@ -32,12 +32,12 @@ Fortunately, many approaches have been developed to tackle this problem.
 -   Particle swarm optimisation
 -   Random search
 
-The word \"crystal structure prediction\", sometimes also refers to
+The *phrase crystal structure prediction* is sometimes used to describe
 those based on subsituting species in known structures from databases,
 usually coupled with machine learning. While they offers essentially
-cost-free predictions for a given composition, they are mostly
-applicable to systems that are well studied and have many experimental
-data available. While low energy structures for particular composition
+cost-free predictions for a given composition, they are often limited
+to systems that are well studied and have many experimental data available. 
+While low energy structures for particular composition
 can be suggested, but there is no guarantee that the true ground state
 structure is among them, due to the lack of true exploration.
 Nevertheless, when apply to a large number of compositions, they can

@@ -23,20 +23,12 @@ SUFFIX_MAP = {
 }
 
 @click.group('deploy')
-@click.option('--lpad', type=click.Path(exists=True))
 @click.pass_context
-def deploy(ctx, lpad):
+def deploy(ctx):
     """Deploy search/relaxation to the FireServer"""
-    if lpad:
-        ctx.obj = LaunchPad.from_file(lpad)
-    elif Path('my_launchpad.yaml').is_file():
-        ctx.obj = LaunchPad.from_file('my_launchpad.yaml')
-        click.echo(
-            'Using `my_launchpad.yaml` in the current working directory.')
-    else:
-        ctx.obj = LaunchPad.from_file(LAUNCHPAD_LOC)
-        click.echo(f'Using launchpad file at `{LAUNCHPAD_LOC}`')
-
+    lpad_file = ctx.obj['lpad_file']
+    ctx.obj = LaunchPad.from_file(lpad_file)
+    click.echo(f'Using launchpad file at `{lpad_file}`')
 
 pass_lpad = click.make_pass_decorator(LaunchPad)
 

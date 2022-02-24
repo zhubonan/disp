@@ -22,10 +22,21 @@ TEST_COLLECTION = 'disp_entry'
 MODULE_DIR = Path(__file__).parent
 DATA_DIR = MODULE_DIR / 'test_data'
 
+@pytest.fixture
+def datapath():
+    return (Path(__file__).parent / 'test_data').absolute()
 
 @pytest.fixture(scope='session')
 def new_db():
     """A brand new database"""
+    import disp.database.api as dba
+    disp_db_file = str(Path(DATA_DIR / 'disp_db.yaml').absolute())
+    
+    # Override the environmental variable
+    # Note this may not work in cases where DB_FILE is imported in the scope of other modules
+    os.environ['DISP_DB_FILE'] = disp_db_file
+    dba.DB_FILE = disp_db_file
+
     disconnect(alias='disp')
     searchdb = SearchDB(
         host='localhost',
@@ -35,6 +46,9 @@ def new_db():
         user=None,
         password=None,
     )
+    lpad = LaunchPad(host='localhost', port=27017, name=TESTDB_NAME)
+    if lpad.fw_id_assigner.find({}).count() == 0:
+        lpad._restart_ids(1,1)
     searchdb.collection.delete_many({})
     searchdb.set_identity(fw_id=1, uuid='UUID4')
     yield searchdb

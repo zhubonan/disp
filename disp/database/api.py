@@ -372,6 +372,10 @@ class SearchDB:
             plt.title('New structures')
             plt.tight_layout()
             plt.show()
+        else:
+            # Save the data
+            tdf.to_csv('throughput.csv')
+
 
         return tdf
 
@@ -449,6 +453,9 @@ class SearchDB:
             plt.title('Completed Calculations')
             plt.tight_layout()
             plt.show()
+        else:
+            # Save the data
+            dataframe.to_csv('throughput.csv')
 
         return dataframe
 

@@ -18,10 +18,7 @@ from disp.scheduler import Dummy
 # pylint: disable=redefined-outer-name, too-many-instance-attributes, import-outside-toplevel, unused-argument, protected-access
 
 # Some global variables
-MODULE_DIR = Path(__file__).parent
-DATA_DIR = MODULE_DIR / 'test_data'
 MODULE = __name__
-DB_FILE = str(DATA_DIR / 'disp_db.yaml')
 
 
 def has_exe(exe):
@@ -43,6 +40,10 @@ need_buildcell = pytest.mark.skipif(  # pylint: disable=invalid-name
     not has_exe('buildcell'),
     reason='Buildcell is not avalaible')
 
+need_pp3 = pytest.mark.skipif(  # pylint: disable=invalid-name
+    not has_exe('pp3'),
+    reason='Pp3 is not avalaible')
+
 
 def _modcell(cell_in):
     """Modify the cell"""
@@ -62,7 +63,7 @@ def backup_path():
 
 
 @need_buildcell
-def test_buildcell_task(clean_launchpad, temp_workdir, get_data_dir, new_db):
+def test_buildcell_task(clean_launchpad, temp_workdir, get_data_dir, new_db, datapath):
     """Test the buildcell task"""
     with open(get_data_dir('buildcell') / 'C2.cell') as fhandle:
         seed_content = fhandle.read()
@@ -71,7 +72,7 @@ def test_buildcell_task(clean_launchpad, temp_workdir, get_data_dir, new_db):
                                seed_name='C2',
                                deposit_init_structure=True,
                                project_name='TEST/C')
-    fwk = Firework([btask], spec={'db_file': DB_FILE})
+    fwk = Firework([btask], spec={'db_file': str(datapath / 'disp_db.yaml')})
     wkf = Workflow.from_Firework(fwk)
     lpd = clean_launchpad
     lpd.add_wf(wkf)
@@ -220,6 +221,8 @@ def test_full_gulp_comb(clean_launchpad, temp_workdir, get_data_dir):
 
     assert len(list(temp_workdir.glob('C2-*.res'))) == 1
 
+
+@need_pp3
 def test_pp3_relax(clean_launchpad, temp_workdir, get_data_dir):
     """Test the buildcell task followed by pp3, packaged in the same FW"""
     with open(get_data_dir('pp3_relax') / 'Al.cell') as fhandle:
@@ -355,35 +358,32 @@ def test_data_transfer(clean_launchpad, temp_workdir):
         objs = archive.getmembers()
         assert len(objs) == 5
 
-
-@need_gulp
 def test_insufficient_time(clean_launchpad, temp_workdir, get_data_dir):
     """Test the buildcell task"""
     del temp_workdir
-
-    with open(get_data_dir('gulp_relax') / 'C2-RAND.cell') as fhandle:
+    with open(get_data_dir('pp3_relax') / 'Al.cell') as fhandle:
         struct_content = fhandle.read()
 
-    with open(get_data_dir('gulp_relax') / 'C2.lib') as fhandle:
+    with open(get_data_dir('pp3_relax') / 'Al.pp') as fhandle:
         param_content = fhandle.read()
 
     # Only 10s left, but gulp needs 20 seconds
     Dummy.DEFAULT_REMAINING_TIME = 20
-    AirssGulpRelaxTask.MINIMUM_RUN_TIME = 20
-    AirssGulpRelaxTask.SHCEUDLER_TIME_OFFSET = 10
+    AirssPp3RelaxTask.MINIMUM_RUN_TIME = 20
+    AirssPp3RelaxTask.SHCEUDLER_TIME_OFFSET = 10
 
-    btask = AirssGulpRelaxTask(
+    btask = AirssPp3RelaxTask(
         param_content=param_content,
         cycles=100,
-        executable='gulp',
+        executable='pp3',
     )
     # project_name = 'TEST/C2'
     fwk = Firework(
         [btask],
         spec={
-            'struct_name': 'C2-TEST',
+            'struct_name': 'Al-TEST',
             'struct_content': struct_content,
-            'seed_name': 'C2',
+            'seed_name': 'Al',
             'pressure': 100,
         })
 
@@ -399,7 +399,7 @@ def test_insufficient_time(clean_launchpad, temp_workdir, get_data_dir):
     Dummy.DEFAULT_REMAINING_TIME = 9999
 
 
-def test_record_upload(temp_workdir, clean_launchpad, new_db):
+def test_record_upload(temp_workdir, clean_launchpad, new_db, datapath):
     """Test the record upload task"""
 
     seed_name = 'C2'
@@ -414,7 +414,7 @@ def test_record_upload(temp_workdir, clean_launchpad, new_db):
         'struct_name': struct_name,
         'project_name': project_name,
         'seed_name': seed_name,
-        'db_file': str(DATA_DIR / 'disp_db.yaml')
+        'db_file': str(datapath / 'disp_db.yaml')
     }
 
     sdb = new_db
@@ -431,7 +431,7 @@ def test_record_upload(temp_workdir, clean_launchpad, new_db):
         'project_name': project_name,
         'seed_name': seed_name,
         'seed_content': 'THIS IS A SEED',
-        'db_file': str(DATA_DIR / 'disp_db.yaml')
+        'db_file': str(datapath / 'disp_db.yaml')
     }
     touch('C2-TEST-2.res')
 
@@ -445,26 +445,27 @@ def test_record_upload(temp_workdir, clean_launchpad, new_db):
     assert results[0].seed_file
 
 
-@need_gulp
+@need_pp3
 def test_upload_record_task(clean_launchpad, temp_workdir, get_data_dir,
-                            new_db):
+                            new_db, datapath):
     """Test the buildcell task followed by gulp, packaged in the same FW"""
-    with open(get_data_dir('gulp_relax') / 'C2.cell') as fhandle:
+
+    with open(get_data_dir('pp3_relax') / 'Al.cell') as fhandle:
         seed_content = fhandle.read()
 
-    with open(get_data_dir('gulp_relax') / 'C2.lib') as fhandle:
+    with open(get_data_dir('pp3_relax') / 'Al.pp') as fhandle:
         param_content = fhandle.read()
 
     btask = AirssBuildcellTask(seed_content=seed_content,
-                               seed_name='C2',
+                               seed_name='Al',
                                store_content=False,
-                               project_name='TEST/C2')
-    rtask = AirssGulpRelaxTask(
+                               project_name='TEST/Al')
+    rtask = AirssPp3RelaxTask(
         param_content=param_content,
         cycles=100,
-        executable='gulp',
+        executable='pp3',
     )
-    db_file = str(DATA_DIR / 'disp_db.yaml')
+    db_file = str(datapath / 'disp_db.yaml')
     upload_task = DbRecordTask(db_file=db_file)
 
     fwb = Firework([btask, rtask, upload_task])
@@ -473,8 +474,8 @@ def test_upload_record_task(clean_launchpad, temp_workdir, get_data_dir,
     lpd.add_wf(wkf)
     launch_rocket(lpd, pdb_on_exception=True)
 
-    assert len(list(temp_workdir.glob('C2-*.res'))) == 1
-    results = new_db.retrieve_project(project_name='TEST/C2',
+    assert len(list(temp_workdir.glob('Al-*.res'))) == 1
+    results = new_db.retrieve_project(project_name='TEST/Al',
                                       include_seed=True,
                                       include_param=True)
     assert len(results) == 1
@@ -607,7 +608,7 @@ def test_castep_relax_script(clean_launchpad, temp_workdir, get_data_dir):
 
 
 @need_castep
-def test_castep_timeout(clean_db, clean_launchpad, temp_workdir, get_data_dir):
+def test_castep_timeout(clean_db, clean_launchpad, temp_workdir, get_data_dir, datapath):
     """Test the buildcell task"""
     del temp_workdir
 
@@ -635,7 +636,7 @@ def test_castep_timeout(clean_db, clean_launchpad, temp_workdir, get_data_dir):
             'struct_content': struct_content,
             'seed_name': 'C2',
             'pressure': 100,
-            'db_file': DB_FILE,
+            'db_file': str(datapath / 'disp_db.yaml'),
         })
 
     wkf = Workflow([fwk])
