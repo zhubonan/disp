@@ -36,7 +36,7 @@ B --- W4[Worker4];
 - A MongDB server is needed to act as the centralised workflow controller and a place to store search results.
 - DISP and its python dependencies needs to be installed on both the local computer and the remote computing cluster/super computer
 - Behind the scene, an extended version [fireworks](https://github.com/materialsproject/fireworks) is used for workflow management, it will be installed automatically
-- We target the use of plane wave DFT code [CASTEP](www.castep.org) for searching, although support for other code can be added easily if needed.
+- We target the use of plane wave DFT code [CASTEP](http://www.castep.org) for searching, although support for other code can be added easily if needed.
 - Scheduler supported is limited to SGE and SLURM at the moment. Other can be added on request, given it is possible to acquire wall time limits at run time.
 
 ## Usage
