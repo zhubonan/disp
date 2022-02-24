@@ -635,7 +635,6 @@ def test_castep_timeout(clean_db, clean_launchpad, temp_workdir, get_data_dir):
             'struct_content': struct_content,
             'seed_name': 'C2',
             'pressure': 100,
-            'db_file': DB_FILE,
         })
 
     wkf = Workflow([fwk])

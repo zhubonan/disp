@@ -16,7 +16,7 @@ DATA_DIR = MODULE_DIR / 'test_data'
 
 def test_from_db_file():
     """Test instantiate SearchDB from a yaml file"""
-    searchdb = SearchDB.from_db_file(DATA_DIR / 'db_file.yaml')
+    searchdb = SearchDB.from_db_file(DATA_DIR / 'disp_db.yaml')
     assert searchdb.user is None
     assert searchdb.host == 'localhost'
     assert searchdb.database

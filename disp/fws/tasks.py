@@ -360,6 +360,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
 
         # Placeholder for the SearchDB instance
         self._sdb = None
+        self.db_file = fw_spec.get('db_file', DB_FILE)
 
         # Set the timeout
         timeout = fw_spec.get('timeout')
@@ -662,7 +663,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
     @property
     def search_db(self):
         if self._sdb is None:
-            self._sdb = SearchDB.from_db_file(DB_FILE)
+            self._sdb = SearchDB.from_db_file(self.db_file)
         return self._sdb
 
     def close_search_db(self):

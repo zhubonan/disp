@@ -21,13 +21,11 @@ from .cmd_tools import tools
 @click.option('--db-file', type=click.Path(), default='disp_db.yaml')
 def main(ctx, lpad_file, db_file):
     """Command-line interface for Distributed Structure Prediction (DISP)"""
-    if lpad_file is None:
+    if not Path(lpad_file).is_file():
         from fireworks.core.launchpad import LAUNCHPAD_LOC
-        if not Path(lpad_file).is_file:
-            lpad_file = LAUNCHPAD_LOC
-    if db_file is None:
-        if not Path(db_file).is_file:
-            db_file = DB_FILE
+        lpad_file = LAUNCHPAD_LOC
+    if not Path(db_file).is_file():
+        db_file = DB_FILE
     ctx.obj = {'db_file': db_file, 'lpad_file': lpad_file}
 
 

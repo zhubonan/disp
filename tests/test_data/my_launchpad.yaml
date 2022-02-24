@@ -1,6 +1,6 @@
 host: localhost
 port: 27017
-name: test-db
+name: disp-db-testing
 username: null
 password: null
 ssl_ca_file: null

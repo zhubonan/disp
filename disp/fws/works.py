@@ -69,12 +69,10 @@ class AirssSearchFW(Firework):
         elif code == 'gulp':
             relax = AirssGulpRelaxTask(param_content=param_content,
                                         executable=executable,
-                                        castep_code=castep_code,
                                         cycles=cycles)
         elif code == 'pp3':
             relax = AirssPp3RelaxTask(param_content=param_content,
                                         executable=executable,
-                                        castep_code=castep_code,
                                         cycles=cycles)
         else:
             raise ValueError(f'Unknown code: {code}')
@@ -144,7 +142,7 @@ class RelaxFW(Firework):
             'seed_name': seed_name,
         })
 
-        if code == 'castep'
+        if code == 'castep':
             relax = AirssCastepRelaxTask(param_content=param_content,
                                         executable=executable,
                                         castep_code=castep_code,
@@ -152,12 +150,10 @@ class RelaxFW(Firework):
         elif code == 'gulp':
             relax = AirssGulpRelaxTask(param_content=param_content,
                                         executable=executable,
-                                        castep_code=castep_code,
                                         cycles=cycles)
         elif code == 'pp3':
             relax = AirssPp3RelaxTask(param_content=param_content,
                                         executable=executable,
-                                        castep_code=castep_code,
                                         cycles=cycles)
         else:
             raise ValueError(f'Unknown code: {code}')

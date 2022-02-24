@@ -56,7 +56,8 @@ def airss():
         click.echo('All GOOD!')
     else:
         click.echo(f'Found missing scripts: {missing}')
-    return is_ok
+    if not is_ok:
+        raise click.ClickException("Some airss components are missing")
 
 
 @check.command('database')

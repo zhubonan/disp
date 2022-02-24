@@ -16,6 +16,11 @@ from disp.tools.modcell import modify_cell
 
 # pylint: disable=invalid-name, too-many-arguments, import-outside-toplevel, too-many-locals
 
+SUFFIX_MAP = {
+    'castep': '.param',
+    'gulp': '.lib',
+    'pp3': '.pp',
+}
 
 @click.group('deploy')
 @click.option('--lpad', type=click.Path(exists=True))
@@ -119,7 +124,13 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dr
     """
 
     seed_content = Path(seed + '.cell').read_text()
-    param_content = Path(seed + '.param').read_text()
+    param_content = Path(seed + SUFFIX_MAP[code]).read_text()
+
+    if code == 'gulp' and 'castep' in exe:
+        exe = 'ggulp'
+    if code == 'pp3' and 'castep' in exe:
+        exe = 'pp3'
+
     wf_metadata = {
         'project_name': project,
         'seed_name': seed,
@@ -271,8 +282,7 @@ def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe, cycles,
     Deploy a workflow to do relaxation of a particular structure
     """
     # Read the inputs
-    param_content = Path(param).read_text()
-
+    param_content = Path(seed + SUFFIX_MAP[code]).read_text()
     spec = {}
 
     wf_metadata = {

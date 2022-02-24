@@ -51,10 +51,8 @@ def generate_fw_query(project, seed, state, query=None):
 def db(ctx, db_file):
     """Options for the database"""
 
-    if not db_file:
-        db_file = DB_FILE
-        click.echo(f'Using db file at {DB_FILE}')
-
+    db_file = ctx.obj.get('db_file')
+    click.echo(f'Using db file at {db_file}')
     ctx.obj = SearchDB.from_db_file(db_file)
 
 
@@ -197,6 +195,10 @@ def throughput(db_obj, group_by, past_days, projects, seeds, aggregate, plot,
                                               aggregate=aggregate,
                                               group_by=group_by,
                                               plot=plot)
+    if dataframe is None:
+        click.echo(f"No results found for the past {24 * past_days:.0f} hours.")
+        return 
+        
     cols = ['/'.join(col.split('/')[-2:]) for col in dataframe.columns]
     dataframe.columns = cols
     dataframe.fillna(0.0, inplace=True)
@@ -208,7 +210,7 @@ def throughput(db_obj, group_by, past_days, projects, seeds, aggregate, plot,
             print(dataframe)
 
 
-@db.command('build_index')
+@db.command('build-index')
 @click.option('--additional-field',
               '-af',
               multiple=True,
@@ -397,7 +399,7 @@ def launch_stats(db_obj, project, seed, query, state, cycles):
     click.echo(tabulate(to_show, headers='keys'))
 
 
-@db.command('retrieve_project')
+@db.command('retrieve-project')
 @click.option('--project', required=True)
 @click.option('--seed', required=False, help='Select seeds by regex')
 @click.option('--struct-name',
