@@ -64,7 +64,7 @@ disp db summary
 Pull completed search on to the disk:
 
 ```
-disp db retrieved_project
+disp db retrieved-project
 ```
 
 

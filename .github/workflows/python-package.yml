@@ -45,7 +45,7 @@ jobs:
         cp src/buildcell/src/buildcell bin/
         cp src/cryan/src/cryan bin/
         cp src/cabal/src/cabal bin/
-        cp src/cabal/src/pp3 bin/
+        cp src/pp3/src/pp3 bin/
         cd ../../
 
     - name: Test with pytest
