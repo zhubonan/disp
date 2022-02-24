@@ -60,27 +60,29 @@ def airss():
 
 
 @check.command('database')
-@click.option('--lpad', type=click.Path(exists=True))
-@click.option('--past-days', '-p', help='New structures to be counted in the past N days.')
-def database(lpad, past_days):
+@click.option('--past-days', '-p', help='New structures to be counted in the past N days.', default=1, type=int)
+@click.pass_context
+def database(ctx, past_days):
     """Check launchpad information"""
 
     # Initialise and check the launch pad
-    if lpad:
-        obj = LaunchPad.from_file(lpad)
-    elif Path('my_launchpad.yaml').is_file():
-        obj = LaunchPad.from_file('my_launchpad.yaml')
-        click.echo(
-            'Using `my_launchpad.yaml` in the current working directory.')
-    else:
-        obj = LaunchPad.from_file(LAUNCHPAD_LOC)
-        click.echo(f'Using launchpad file at `{LAUNCHPAD_LOC}`')
+    lpad = ctx.obj.get('lpad_file', LAUNCHPAD_LOC)
+    obj: LaunchPad = LaunchPad.from_file(lpad)
+    try:
+        ndoc = obj.fireworks.find_one({})
+    except:
+        click.echo("Cannot connect to the LaunchPad server")
+    click.echo("Confection to the LaunchPad server successful: OK\n")
 
-    click.echo(f'LaunchPad name: {obj.name}')
+    click.echo(f'Default launchpad file located at: {LAUNCHPAD_LOC}')
+    click.echo(f'Current launchpad file: {Path(lpad).absolute()}')
 
     # Check the DB interface
-    click.echo(f'DISP database specification file located at: {DB_FILE}')
-    sdb = SearchDB.from_db_file(DB_FILE)
+    db = ctx.obj.get('db_file', DB_FILE)
+    sdb = SearchDB.from_db_file(db)
+    click.echo(f'Default database file located at: {DB_FILE}')
+    click.echo(f'Current database file: {Path(db).absolute()}\n')
+
     for key in ['host', 'user', 'port', 'db_name']:
         value = getattr(sdb, key)
         click.echo(f'{key:<15}: {value}')

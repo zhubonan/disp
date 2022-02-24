@@ -879,6 +879,12 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
 
         return FWAction(stored_data=stored_data, detours=detours)
 
+    def _prepare_inputs(self, struct_name):
+        """Write the input files"""
+        super()._prepare_inputs(struct_name)
+        # Note that `gulp_relax` takes the library from SEED.lib
+        shutil.move(self.struct_name + '.lib', self.seed_name + '.lib')
+
 
 @explicit_serialize
 class AirssPp3RelaxTask(AirssGulpRelaxTask):
@@ -915,6 +921,10 @@ class AirssPp3RelaxTask(AirssGulpRelaxTask):
         ]
         return cmd
 
+    def _prepare_inputs(self, struct_name):
+        """Write the input files"""
+        AirssCastepRelaxTask._prepare_inputs(self, struct_name)
+ 
 
 @explicit_serialize
 class DbRecordTask(FiretaskBase):

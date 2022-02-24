@@ -57,11 +57,11 @@ class SearchDB:
     ]
 
     def __init__(self,
-                 host: str,
-                 port: int,
-                 database: str,
-                 user: str,
-                 password: str,
+                 host: str = 'localhost',
+                 port: int = 27017,
+                 database: str = 'disp-db',
+                 user: str = None,
+                 password: str = None,
                  collection: str = 'disp_entry',
                  **kwargs):
 
