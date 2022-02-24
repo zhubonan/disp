@@ -51,6 +51,7 @@ jobs:
     - name: Test with pytest
       run: |
         export PATH=`pwd`/airss-0.9.1/bin:$PATH
+        which buildcell
         pytest
 
   doc:
