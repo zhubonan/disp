@@ -9,14 +9,26 @@ DISP makes searching easier by providing a centralised server that handles distr
 It is built upon the original AIRSS package and is fully compatible with the latter. 
 
 ```mermaid
-flowchart
+flowchart TD
 
-A[PC] --> B[Server (MongoDB)]
+A[PC] --> |search tasks| B[Server]
+B --> |relaxed geometries| A
 
-B -->|job| W1[Worker1]
-B -->|job| W2[Worker2]
-B -->|job| W3[Worker3]
-B -->|job| W4[Worker4]
+subgraph HPC1
+W1
+W2
+end
+
+subgraph HPC2
+W3
+W4
+end
+
+B --- W1[Worker1]
+B --- W2[Worker2]
+
+B --- W3[Worker3]
+B --- W4[Worker4]
 ```
 
 ## Requirements
