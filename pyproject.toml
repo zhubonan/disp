@@ -18,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 doc = [
-    "sphinx", "sphinx-rtd-theme"
+    "mkdocs", "mkdocs-material"
 ]
 test = ["pytest"]
 vasp = ["atomate"]

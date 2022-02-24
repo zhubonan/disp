@@ -1,0 +1,4 @@
+arrange:
+    - introduction.md
+    - inputs.md
+    - castep_relax.md

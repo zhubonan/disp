@@ -70,6 +70,4 @@ jobs:
           pip install .[doc]
       - name: Build documentation
         run: |
-          sudo apt-get install make
-          cd docs
-          make html
+          mkdocs build
