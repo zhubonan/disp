@@ -192,5 +192,4 @@ The resulting structure can be pulled from the server with:
 disp db retrieve-project --project test-1-1
 ```
 
-Then you can use `ca -r` to check the results just as before.
-
+Then use `ca -r` to check the results, just as before.
