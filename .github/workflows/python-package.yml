@@ -49,7 +49,7 @@ jobs:
     - name: Test with pytest
       run: |
         export PATH=`pwd`/external/airss-0.9.1/bin:$PATH
-        pytest disp/
+        pytest
 
   doc:
     runs-on: ubuntu-latest

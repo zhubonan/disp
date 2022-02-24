@@ -6,7 +6,7 @@ import os
 from disp.scftools import SCFInfo
 
 fpath, fname = os.path.split(__file__)
-spt_dir = os.path.join(fpath, 'support')
+spt_dir = os.path.join(fpath, 'test_data')
 
 
 def test_scf_read():

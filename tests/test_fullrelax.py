@@ -11,7 +11,7 @@ from disp.casteptools import push_cell
 
 def test_push_cell(tmpdir):
     """Test push_cell function"""
-    data_folder = Path(__file__).parent / 'support'
+    data_folder = Path(__file__).parent / 'test_data'
     workdir = tempfile.mkdtemp()
     test_cell = Path(workdir) / 'test.cell'
     test_cell_out = Path(workdir) / 'test-out.cell'
