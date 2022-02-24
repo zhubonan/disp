@@ -61,7 +61,8 @@ def airss():
 
 @check.command('database')
 @click.option('--lpad', type=click.Path(exists=True))
-def database(lpad):
+@click.option('--past-days', '-p', help='New structures to be counted in the past N days.')
+def database(lpad, past_days):
     """Check launchpad information"""
 
     # Initialise and check the launch pad
@@ -87,7 +88,7 @@ def database(lpad):
     # Basic status
     click.echo(f'\nTotal number of SHELX entries: {ResFile.objects.count()}')  # pylint: disable=no-member
     now = datetime.utcnow()
-    cutoff = now - timedelta(days=1)
+    cutoff = now - timedelta(days=past_days)
     pipeline = [
         {
             '$match': {
@@ -108,7 +109,7 @@ def database(lpad):
         },
     ]
 
-    click.echo(f'\nNew structures in the last 24 hours:')
+    click.echo(f'\nNew structures in the last {24 * past_days} hours:')
     for entry in ResFile.objects().aggregate(pipeline):  # pylint: disable=no-member
         idt = entry['_id']
         count = entry['count']
