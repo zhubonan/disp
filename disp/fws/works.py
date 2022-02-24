@@ -1,9 +1,10 @@
 """
 Module with definition of Fireworks
 """
+from multiprocessing.sharedctypes import Value
 from fireworks.core.firework import Firework
 
-from .tasks import AirssBuildcellTask, AirssCastepRelaxTask, AirssDataTransferTask, DbRecordTask, AirssModcellTask
+from .tasks import AirssBuildcellTask, AirssCastepRelaxTask, AirssDataTransferTask, DbRecordTask, AirssModcellTask, AirssGulpRelaxTask, AirssPp3RelaxTask
 from .utility_tasks import GzipDir
 
 #pylint: disable=too-many-arguments, return-in-init,too-many-locals
@@ -30,6 +31,7 @@ class AirssSearchFW(Firework):
                  name=None,
                  modcell_content=None,
                  modcell_name=None,
+                 code='castep',
                  **kwargs):
         """
         Initialise a AirssSearchFW instance
@@ -59,10 +61,24 @@ class AirssSearchFW(Firework):
                                    func_content=modcell_content)
             tasks.append(mod)
 
-        relax = AirssCastepRelaxTask(param_content=param_content,
-                                     executable=executable,
-                                     castep_code=castep_code,
-                                     cycles=cycles)
+        if code == 'castep':
+            relax = AirssCastepRelaxTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cycles=cycles)
+        elif code == 'gulp':
+            relax = AirssGulpRelaxTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cycles=cycles)
+        elif code == 'pp3':
+            relax = AirssPp3RelaxTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cycles=cycles)
+        else:
+            raise ValueError(f'Unknown code: {code}')
+        
         tasks.append(relax)
 
         transfer = AirssDataTransferTask(keep=keep)
@@ -106,6 +122,7 @@ class RelaxFW(Firework):
                  keep=True,
                  existing_spec=None,
                  name=None,
+                 code='castep',
                  **kwargs):
         """
         Initialise a AirssSearchFW instance
@@ -127,10 +144,23 @@ class RelaxFW(Firework):
             'seed_name': seed_name,
         })
 
-        relax = AirssCastepRelaxTask(param_content=param_content,
-                                     executable=executable,
-                                     castep_code=castep_code,
-                                     cycles=cycles)
+        if code == 'castep'
+            relax = AirssCastepRelaxTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cycles=cycles)
+        elif code == 'gulp':
+            relax = AirssGulpRelaxTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cycles=cycles)
+        elif code == 'pp3':
+            relax = AirssPp3RelaxTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cycles=cycles)
+        else:
+            raise ValueError(f'Unknown code: {code}')
 
         transfer = AirssDataTransferTask(keep=keep)
 
@@ -141,7 +171,7 @@ class RelaxFW(Firework):
         if record_db or spec.get('record_db'):
             spec['record_db'] = True
             spec[
-                '_add_launchpad_and_fw_id'] = True  # Allow the Firework to acess the fw_id
+                '_add_launchpad_and_fw_id'] = True  # Allow the Firework to access the fw_id
             tasks.append(DbRecordTask())
         if gzip_folder or spec.get('gzip_folder'):
             spec['gzip_folder'] = True
