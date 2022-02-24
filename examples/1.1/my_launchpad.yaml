@@ -1,0 +1,11 @@
+host: localhost
+port: 27017
+name: test-db
+username: null
+password: null
+ssl_ca_file: null
+logdir: null
+strm_lvl: INFO
+user_indices: []
+wf_user_indices: []
+authsource: admin

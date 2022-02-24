@@ -1,0 +1,7 @@
+host: localhost
+port: 27017
+database: test-db
+collection: disp_entry
+user: null
+password: null
+authsource: admin

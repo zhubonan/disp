@@ -12,7 +12,7 @@ import pytest
 from fireworks.core.firework import Firework, Workflow
 from fireworks.core.rocket_launcher import launch_rocket
 from fireworks.core.fworker import FWorker
-from disp.fws.tasks import AirssBuildcellTask, AirssValidateTask, AirssGulpRelaxTask, AirssCastepRelaxTask, RelaxOutcome, DbRecordTask
+from disp.fws.tasks import AirssBuildcellTask, AirssPp3RelaxTask, AirssValidateTask, AirssGulpRelaxTask, AirssCastepRelaxTask, RelaxOutcome, DbRecordTask
 from disp.scheduler import Dummy
 
 # pylint: disable=redefined-outer-name, too-many-instance-attributes, import-outside-toplevel, unused-argument, protected-access
@@ -219,6 +219,32 @@ def test_full_gulp_comb(clean_launchpad, temp_workdir, get_data_dir):
     launch_rocket(lpd, pdb_on_exception=True)
 
     assert len(list(temp_workdir.glob('C2-*.res'))) == 1
+
+def test_pp3_relax(clean_launchpad, temp_workdir, get_data_dir):
+    """Test the buildcell task followed by pp3, packaged in the same FW"""
+    with open(get_data_dir('pp3_relax') / 'Al.cell') as fhandle:
+        seed_content = fhandle.read()
+
+    with open(get_data_dir('pp3_relax') / 'Al.pp') as fhandle:
+        param_content = fhandle.read()
+
+    btask = AirssBuildcellTask(seed_content=seed_content,
+                               seed_name='Al',
+                               store_content=False,
+                               project_name='TEST/Al')
+    rtask = AirssPp3RelaxTask(
+        param_content=param_content,
+        executable='pp3',
+        cycles=100,
+    )
+
+    fwb = Firework([btask, rtask])
+    wkf = Workflow([fwb])
+    lpd = clean_launchpad
+    lpd.add_wf(wkf)
+    launch_rocket(lpd, pdb_on_exception=True)
+
+    assert len(list(temp_workdir.glob('Al-*.res'))) == 1
 
 
 def test_modcell_task(clean_launchpad, temp_workdir, get_data_dir):

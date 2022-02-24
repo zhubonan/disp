@@ -916,8 +916,7 @@ class AirssPp3RelaxTask(AirssGulpRelaxTask):
         # NOTE: this assumes that we are working with a periodic system and
         # zero pressure
         cmd = [
-            'pp3_relax', self.executable, '0',
-            str(self.pressure), self.struct_name
+            'pp3_relax', self.executable,  self.struct_name
         ]
         return cmd
 
