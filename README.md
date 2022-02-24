@@ -11,24 +11,24 @@ It is built upon the original AIRSS package and is fully compatible with the lat
 ```mermaid
 flowchart TD
 
-A[PC] --> |search tasks| B[Server]
-B --> |relaxed geometries| A
+A[PC] --> |search tasks| B[Server];
+B --> |relaxed geometries| A;
 
 subgraph HPC1
-W1
-W2
+W1;
+W2;
 end
 
 subgraph HPC2
-W3
-W4
+W3;
+W4;
 end
 
-B --- W1[Worker1]
-B --- W2[Worker2]
+B --- W1[Worker1];
+B --- W2[Worker2];
 
-B --- W3[Worker3]
-B --- W4[Worker4]
+B --- W3[Worker3];
+B --- W4[Worker4];
 ```
 
 ## Requirements
