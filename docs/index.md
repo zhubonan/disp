@@ -13,6 +13,30 @@ allocated dynamically at *run time*, rather than fixed at *submission*
 time. For example, it is possible to queue up many searching workloads
 or divert all computing power to a specific problem on-demand.
 
+```mermaid
+flowchart TD
+
+A[PC] --> |search tasks| B[Server];
+B --> |relaxed geometries| A;
+
+subgraph HPC1
+W1;
+W2;
+end
+
+subgraph HPC
+W3;
+W4;
+end
+
+B --- W1[Worker1];
+B --- W2[Worker2];
+
+B --- W3[Worker3];
+B --- W4[Worker4];
+
+```
+
 Behind the scene, this packages uses
 [fireworks](https://materialsproject.github.io/fireworks/) as the
 backend for job scheduling. This also means that the structure

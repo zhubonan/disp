@@ -364,13 +364,15 @@ class SearchDB:
         tdf = dataframe.groupby(group_by).resample(
             aggregate)[group_by].count().unstack(level=0)
         tdf.name = 'Completed'
-        tdf.index = tdf.index.tz_localize('UTC').tz_convert('Europe/London')
         if plot:
+            tdf.index = tdf.index.tz_localize('UTC').tz_convert('Europe/London')
+            tdf.index = [x.strftime('%d/%m %H00') for x in tdf.index]
             tdf.plot.bar(stacked=True)
             plt.xlabel('Creation time')
-            plt.xlabel('Count')
+            plt.ylabel('Count')
             plt.title('New structures')
             plt.tight_layout()
+            plt.legend(loc=None)
             plt.show()
         else:
             # Save the data

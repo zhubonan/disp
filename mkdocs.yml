@@ -5,24 +5,35 @@ nav:
   - Home: "index.md"
   - Getting Started: 
     - Installation: "Getting Started/installation.md"
-    - Tutorial: 
-      - Lennard-Jones Solid: "examples/1.1/README.md"
+    - Setup for remote computers: "Getting Started/remote_computer.md"
+  - Tutorial: 
+    - Lennard-Jones Solid: "examples/1.1/README.md"
+    - Lennard-Jones 38 Cluster: "examples/1.04/README.md"
   - Background:
     - Crystal Structure Prediction: "background/structure_searching.md"
     - AIRSS: "background/airss.md"
     - Workflow Engine: "background/workflow_engine.md"
+  - "How-To":
+    - "Manage Searches": "How-To/manage_search.md"
+    - "Analyse Data": "How-To/analyse_data.md"
+
   - AIRSS Guide:
     - Introduction: "AIRSS Guide/introduction.md"
     - Inputs: "AIRSS Guide/inputs.md"
     - castep_relax: "AIRSS Guide/castep_relax.md"
 
 markdown_extensions:
+  - attr_list
   - footnotes
   - pymdownx.arithmatex:
       generic: true
   - admonition
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+          - name: mermaid
+            class: mermaid
+            format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.snippets
   - def_list
   - pymdownx.tasklist:

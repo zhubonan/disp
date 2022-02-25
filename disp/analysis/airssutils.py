@@ -514,6 +514,7 @@ def read_ca(lines):
 
 def collect_results_in_df(norm_mode='per_atom',
                           include_doc=False,
+                          qset=None,
                           **cond) -> pd.DataFrame:
     """
     Collect the results based on the selections conditions and return a dataframe
@@ -527,7 +528,8 @@ def collect_results_in_df(norm_mode='per_atom',
             the original ``RESFile`` objects are stored in the ``res`` column.
     """
     records = []
-    qset = ResFile.objects(**cond)  # pylint: disable=no-member
+    if qset is None:
+        qset = ResFile.objects(**cond)  # pylint: disable=no-member
     nentries = qset.count()
     for doc in tqdm(qset, total=nentries):
         res = RESFile.from_string(doc.content)

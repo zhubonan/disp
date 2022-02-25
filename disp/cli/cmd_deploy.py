@@ -108,9 +108,10 @@ def info(lpad):
     default='default',
     help=
     'Alias for resolving the CASTEP executable, as define in the worker file.')
+@click.option('--cluster', is_flag=True, default=False)
 @pass_lpad
 def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dryrun,
-                  priority, category, gzip, record_db, modcell, castep_code):
+                  priority, category, gzip, record_db, modcell, castep_code, cluster):
     """
     Deploy the search by uploading it to the Fireserver
     """
@@ -170,6 +171,7 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dr
                            modcell_name=modcell_name,
                            castep_code=castep_code,
                            code=code,
+                           cluster=cluster,
                            spec=spec)
 
         workflow = Workflow([fw], name=name)
@@ -266,15 +268,16 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dr
               show_default=True,
               help='Code to use for relaxation',
               default='castep')
+@click.option('--cluster', is_flag=True, default=False)
 @pass_lpad
 def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe, cycles,
-                 keep, dryrun, priority, gzip, record_db, category,
+                 keep, dryrun, priority, gzip, record_db, category, cluster,
                  extra_cell_file, castep_code):
     """
     Deploy a workflow to do relaxation of a particular structure
     """
     # Read the inputs
-    param_content = Path(seed + SUFFIX_MAP[code]).read_text()
+    param_content = Path(param).read_text()
     spec = {}
 
     wf_metadata = {
@@ -330,6 +333,7 @@ def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe, cycles,
             seed_name=seed,
             castep_code=castep_code,
             code=code,
+            cluster=cluster,
         )
 
         wflow = Workflow([fw], name=name)

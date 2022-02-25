@@ -111,7 +111,7 @@ On the remote compute, it is recommand to have a certain folder structure like b
       |....
 ```
 
-The location of `FW_config.yaml` is determined from `$FW_CONFIG_FILE`, and the location of the `<BASE_PATH>` is implied from its value (or `$USER/airss-fw/` if not set).
+The location of `FW_config.yaml` is determined from `$FW_CONFIG_FILE`, and the location of the `<BASE_PATH>` is implied from its value (or `$USER/disp-base/` if not set).
 Typically, the `disp_db.yaml` is in the same folder as `FW_config.yaml`.
 
 When you launch a search through DISP, a `project_name` is passed, and it is used as a relative path insdie `airss-datastore` for storing detailed DFT output.

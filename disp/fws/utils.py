@@ -25,7 +25,7 @@ class FWPathManager:
     The position of FW_config file is detected using the environmental
     variable FWPathManager, and the BASE_PATH is always one level above
     it. If FW_CONFIG_FILE is not set, or it points to $USER/.fireworks,
-    BASE_PATH defaults to $HOME/airss-fw.
+    BASE_PATH defaults to $HOME/disp-base.
     """
     def __init__(self, base_path=None):
         """Instantiate a FWPathManager"""
@@ -39,7 +39,7 @@ class FWPathManager:
             fw_config = os.environ.get('FW_CONFIG_FILE')
             user = os.environ.get('USER')
             if not fw_config or f'{user}/.fireworks' in fw_config:
-                base_path = Path.home() / 'airss-fw'
+                base_path = Path.home() / 'disp-base'
             else:
                 base_path = Path(fw_config).parent.parent
         else:

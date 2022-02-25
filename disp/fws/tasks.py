@@ -297,7 +297,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
     # _fw_name = 'CastepRelaxTask'
     required_params = ['cycles', 'param_content', 'executable']
     optional_params = [
-        'minimum_run_time', 'prepend_command', 'append_command', 'castep_code'
+        'minimum_run_time', 'prepend_command', 'append_command', 'castep_code', 'cluster'
     ]
     MINIMUM_RUN_TIME = 600
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
@@ -346,6 +346,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         self.shebang = fw_env.get('castep_jobscript_shebang', self.shebang)
 
         self.pressure = fw_spec.get('pressure', 0.0)
+        self.cluster = int(self.get('cluster', False))
 
         self.prepend_command = self.get(
             'prepend_command',
@@ -653,7 +654,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
 
     def _save_res(self):  # pylint: disable=no-self-use
         """Save the res file"""
-        proc = subprocess.run(['castep2res', self.struct_name],
+        proc = subprocess.run(['castep2res', str(self.cluster), self.struct_name],
                               capture_output=True,
                               universal_newlines=True,
                               check=True)
@@ -801,7 +802,7 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
 
     #_fw_name = 'GulpRelaxTask'
     required_params = ['cycles', 'param_content', 'executable']
-    optional_params = ['minimum_run_time', 'prepend_command', 'append_command']
+    optional_params = ['minimum_run_time', 'prepend_command', 'append_command', 'cluster']
     MINIMUM_RUN_TIME = 10
     SHCEUDLER_TIME_OFFSET = 10
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
@@ -813,7 +814,7 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
         # NOTE: this assumes that we are working with a periodic system and
         # zero pressure
         cmd = [
-            'gulp_relax', self.executable, '0',
+            'gulp_relax', self.executable, str(self.cluster),
             str(self.pressure), self.struct_name
         ]
         return cmd
@@ -905,7 +906,7 @@ class AirssPp3RelaxTask(AirssGulpRelaxTask):
 
     #_fw_name = 'GulpRelaxTask'
     required_params = ['cycles', 'param_content', 'executable']
-    optional_params = ['minimum_run_time', 'prepend_command', 'append_command']
+    optional_params = ['minimum_run_time', 'prepend_command', 'append_command', 'cluster']
     MINIMUM_RUN_TIME = 10
     SHCEUDLER_TIME_OFFSET = 10
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')

@@ -25,13 +25,19 @@ def test_base_path(manager):
     assert man.base_path == Path(tmpd)
     assert man.base_path.is_dir()
 
+    os.environ.pop('FW_CONFIG_FILE', None)
     man = FWPathManager()
-    assert man.base_path == Path.home() / 'airss-fw'
+    assert man.base_path == Path.home() / 'disp-base'
 
     os.environ['FW_CONFIG_FILE'] = str(Path.home() /
                                        '.fireworks/FW_config.yaml')
     man = FWPathManager()
-    assert man.base_path == Path.home() / 'airss-fw'
+    assert man.base_path == Path.home() / 'disp-base'
+
+    os.environ['FW_CONFIG_FILE'] = str(Path.home() /
+                                       'disp2/config/FW_cofig.yaml')
+    man = FWPathManager()
+    assert man.base_path == Path.home() / 'disp2'
 
     man.__repr__()
 

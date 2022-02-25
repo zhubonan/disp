@@ -33,6 +33,7 @@ class AirssSearchFW(Firework):
                  modcell_name=None,
                  code='castep',
                  walltime_seconds=600,
+                 cluster=False,
                  **kwargs):
         """
         Initialise a AirssSearchFW instance
@@ -66,14 +67,17 @@ class AirssSearchFW(Firework):
         if code == 'castep':
             relax = AirssCastepRelaxTask(param_content=param_content,
                                         executable=executable,
+                                        cluster=cluster,
                                         castep_code=castep_code,
                                         cycles=cycles)
         elif code == 'gulp':
             relax = AirssGulpRelaxTask(param_content=param_content,
+                                        cluster=cluster,
                                         executable=executable,
                                         cycles=cycles)
         elif code == 'pp3':
             relax = AirssPp3RelaxTask(param_content=param_content,
+                                        cluster=cluster,
                                         executable=executable,
                                         cycles=cycles)
         else:
@@ -124,6 +128,7 @@ class RelaxFW(Firework):
                  name=None,
                  code='castep',
                  walltime_seconds=600,
+                 cluster=False,
                  **kwargs):
         """
         Initialise a AirssSearchFW instance
@@ -150,14 +155,17 @@ class RelaxFW(Firework):
             relax = AirssCastepRelaxTask(param_content=param_content,
                                         executable=executable,
                                         castep_code=castep_code,
+                                        cluster=cluster,
                                         cycles=cycles)
         elif code == 'gulp':
             relax = AirssGulpRelaxTask(param_content=param_content,
                                         executable=executable,
+                                        cluster=cluster,
                                         cycles=cycles)
         elif code == 'pp3':
             relax = AirssPp3RelaxTask(param_content=param_content,
                                         executable=executable,
+                                        cluster=cluster,
                                         cycles=cycles)
         else:
             raise ValueError(f'Unknown code: {code}')

@@ -193,3 +193,12 @@ disp db retrieve-project --project test-1-1
 ```
 
 Then use `ca -r` to check the results, just as before.
+
+
+## Further reading
+
+The [online airss documentation](https://airss-docs.github.io/tutorials/examples/) contains more insightful tutorials for searching Lennard-Jone systems.
+
+!!! note
+
+    Search for isolated clusters is not currently supported by DISP. 

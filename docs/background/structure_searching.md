@@ -1,4 +1,4 @@
-# Crystal Structure Prediction {#crystal_structure_prediction}
+# Crystal Structure Prediction
 
 The structure of the material is essential in order to carry out any
 materials modelling work. Very often, this information has to be
