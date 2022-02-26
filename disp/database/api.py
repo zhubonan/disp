@@ -4,7 +4,7 @@ Module for providing a MongoDB database (collection) interface for AIRSS searche
 import os
 import zlib
 import enum
-from logging import getLogger
+from logging import getLogger, INFO, WARNING
 import hashlib
 import time
 from datetime import datetime, timedelta
@@ -709,7 +709,6 @@ def worker_aggregation(launch_col='launches'):
 
 class StructCounts:
     """Class for querying the database to obtain the structure counts"""
-    logger = getLogger(__name__)
 
     def __init__(self,
                  disp_coll: str,
@@ -735,6 +734,11 @@ class StructCounts:
         self.wf_mode = wf_mode
         self.show_priority = show_priority  # Not used
         self.include_res = include_res  # Query the structure counts
+        self.logger = getLogger(__name__)
+        if verbose:
+            self.logger.setLevel(INFO)
+        else:
+            self.logger.setLevel(WARNING)
 
     def get_summary_df(self):
         """Main loginc for getting the summary of the data"""
@@ -748,7 +752,9 @@ class StructCounts:
         wdf = self.get_wf_collection()
 
         if len(wdf) == 0:
-            self.logger.info('WARNING: No workflow matches the query.')
+            self.logger.info('No workflow matches the query.')
+            if self.projects is not None or self.seeds is None:
+                return wdf
 
         if self.verbose:
             ttmp = time.time() - ttmp
@@ -825,8 +831,6 @@ class StructCounts:
     def get_res_entries(self):
         """Obtain the entry of res files"""
         ttmp = time.time()
-        if self.verbose:
-            self.logger.info('Obtaining relaxed structure counts')
 
         # Check if any filters have been applied - warning if thait is not the case
         has_no_filter = all(
@@ -848,15 +852,12 @@ class StructCounts:
                 for item in res]
         sdf = pd.DataFrame(data, columns=['seed', 'project', 'res'])
         dtime = time.time() - ttmp
-        if self.verbose:
-            print(
-                f'Obtained relaxed structure counts - time elapsed {dtime:.2f}'
-            )
+        self.logger.info(
+            f'Obtained relaxed structure counts - time elapsed {dtime:.2f}'
+        )
 
         # Include initial structures
         ttmp = time.time()
-        if self.verbose:
-            print('Obtaining initial structure counts')
         res = self.disp_coll.aggregate(
             get_pipeline('DispEntry.InitialStructureFile',
                          project_regex=self.project_regex,
@@ -868,9 +869,8 @@ class StructCounts:
         idf = pd.DataFrame(data, columns=['seed', 'project', 'init_structs'])
 
         dtime = time.time() - ttmp
-        if self.verbose:
-            print(
-                f'Obtained initial structure counts - time elapsed {dtime:.2f} s'
-            )
+        self.logger.info(
+            f'Obtained initial structure counts - time elapsed {dtime:.2f} s'
+        )
 
         return sdf, idf

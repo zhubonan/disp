@@ -113,9 +113,10 @@ def list_seeds(db_obj, seed, project, state, query):
               is_flag=True,
               default=False,
               help='Show the results on the atomate collection instead.')
+@click.option('--verbose', '-v', is_flag=True, default=False)
 @pass_db_obj
 def summary(db_obj, project, state, seed, per_project, workflows,
-            show_priority, atomate, no_res):
+            show_priority, atomate, no_res, verbose):
     """
     Display a summary of number of structures in the database
     """
@@ -127,7 +128,7 @@ def summary(db_obj, project, state, seed, per_project, workflows,
                                    include_atomate=atomate,
                                    show_priority=show_priority,
                                    include_res=not no_res,
-                                   verbose=True)
+                                   verbose=verbose)
     if per_project:
         if not show_priority:
             df = df.groupby('project').sum()
