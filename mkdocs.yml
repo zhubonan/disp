@@ -9,6 +9,7 @@ nav:
   - Tutorial: 
     - Lennard-Jones Solid: "examples/1.1/README.md"
     - Lennard-Jones 38 Cluster: "examples/1.04/README.md"
+    - SrTiO3 Ground State: "examples/sto/README.md"
   - Background:
     - Crystal Structure Prediction: "background/structure_searching.md"
     - AIRSS: "background/airss.md"

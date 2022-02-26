@@ -144,3 +144,5 @@ gulptmp_*
 
 .vscode
 *.code-workspace
+
+*.res
