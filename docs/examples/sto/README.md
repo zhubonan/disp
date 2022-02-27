@@ -347,3 +347,34 @@ Note that setting `cycles` to 0 bypass the automatic restart routine in `castep_
     fine_grid_scale : 3
     ```
     in order to use denser FFT grids.
+
+The high precision calculations result in a slightly different ranking of energy amount the $R3m$ and the $P4mm$ phases.
+The three $R3m$ phases are now having the same energy - they are in fact identical structures.
+
+```
+$ ca -r
+
+SrTiO3-2*39-f3dc32       0.09    61.446   -3798.370    3 TiSrO3       R3m            1
+SrTiO3-2*13-400370      -0.02    61.654       0.000    2 TiSrO3       R3m            1
+SrTiO3-2*49-8bd3e2       0.05    61.545       0.000    3 TiSrO3       R3m            1
+SrTiO3-2*16-fbabe1       0.01    61.490       0.001    2 TiSrO3       P4mm           1
+SrTiO3-2*52-9949ce      -0.00    84.050       0.068    2 TiSrO3       P21/m          1
+SrTiO3-2*30-e8bee6      -0.04    81.673       0.396    4 TiSrO3       Ima2           1
+SrTiO3-2*38-7d3a16      -0.03    77.630       0.425    4 TiSrO3       C2/c           1
+SrTiO3-2*18-ac0857       0.06    74.560       0.433    6 TiSrO3       P32            1
+SrTiO3-2*29-c45552       0.03    75.529       0.471    2 TiSrO3       C2/m           1
+SrTiO3-2*07-085d5a       0.05    97.381       0.551    6 TiSrO3       P-6            1
+```
+
+
+### Total resources usages
+
+The total time that each structure used is recorded in the SHELX file.
+In this example, a total of about 7000 core hours have been used.
+
+```
+grep  Total *.res | awk 'BEGIN{x=0}{x+=$4}END{print x /3600 * 24}' 
+```
+
+There are 24 cores per node, so this is equivalent to roughly 12 node days, 
+or having 12 such nodes working for a single day.
