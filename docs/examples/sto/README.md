@@ -332,7 +332,18 @@ cp $(ca -r -t -l |  awk '{print $1".res"}') refine/
 And deploy the relaxations with:
 
 ```
-disp deploy relax --seed SrTiO3-refine --base-cell SrTiO3-refine.cell --cell "refine/SrTiO3-*.res" --param SrTiO3-refine.param --project example/sto/dft-refine --priority 100 --category 24-core --cycles 0
+disp deploy relax --seed SrTiO3-refine --base-cell SrTiO3-refine.cell \
+--cell "refine/SrTiO3-*.res" --param SrTiO3-refine.param --project example/sto/dft-refine \
+--priority 100 --category 24-core --cycles 0
 ```
 
-Note that setting `cycles` to 0 bypass the automatic restart routine in `castep_relax` which is not needed with constant cut-off variable cell relaxation. 
+Note that setting `cycles` to 0 bypass the automatic restart routine in `castep_relax` which is not needed with constant basis quality mode.
+
+!!! tip
+
+    Final results, one may also want to have:
+    ```
+    grid_scale : 2
+    fine_grid_scale : 3
+    ```
+    in order to use denser FFT grids.
