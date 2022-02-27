@@ -5,9 +5,9 @@ $\mathrm{SrTiO_3}$ has a cubic perovskite structure at room temperature with spa
 
 ## Search with GULP
 
-In this example we search for its ground state using buckingham potential with long range coulumb interaction with [GULP]().
+In this example we search for its ground state using buckingham potential with long range coulumb interaction with [GULP](http://gulp.curtin.edu.au/gulp/).
 
-The Buckingham potential has the form:
+The [Buckingham potential](https://en.wikipedia.org/wiki/Buckingham_potential) has the form:
 
 $$ \Phi_{12} = A \exp(-Br) - \frac{C}{r^6} + \frac{q_1 q_2}{4\pi\epsilon_0r} $$
 
@@ -222,8 +222,8 @@ SrTiO3-2*29-c45552      -0.01    74.188       0.498    2 TiSrO3       C2/m      
 SrTiO3-2*07-085d5a      -0.00    95.629       0.576    6 TiSrO3       P-6            1
 ```
 
-At the first glance, there is a no structure with space group $Pm\bar{3}m}$.
-This is not surprise since the $\mathrm{Pm\bar{3}m}$ phase is not actually the low temperature ground state.
+At the first glance, there is a no structure with space group $Pm\bar{3}m$.
+This is not surprise since the $Pm\bar{3}m$ phase is not actually the low temperature ground state.
 The true ground state has a distorted octahedral network with space group $I4/mcm$.
 While we did not found this exact phase, the top four structures are in fact also perovskites but has different distortion patterns.
 
@@ -316,9 +316,9 @@ In addition, the spaces of generated kpoints is requested to be at most $0.05 2\
 
 In the `param` file, the plane-wave cut off energy is raised to `700 eV`.
 
-!!! note
+!!! note "Constant basis quality relaxation"
     
-    In this example, the `fixed_npw` is turned off so the variable cell relaxation will be performed under constant cut-off energy mode, and `finite_basis_corr` is turned on to allow the Pulay stress to be correct automatically.
+    In this example, the `fixed_npw` is turned off so the variable cell relaxation will be performed under constant cut-off energy (quality) mode, and `finite_basis_corr` is turned on to allow the Pulay stress to be correct automatically.
     Otherwise, the basis set would change with unit cell, hence the effective cut off energy can be different from that initially supplied.
     This means that the final energy is always consistent with the geometry, and there is no need to perform an additional singlepoint calculation as in constant-basis mode, e.g. `fixed_npw : true`.
 
@@ -326,7 +326,7 @@ Create a folder with the top structures:
 
 ```
 mkdir refine
-ca -r -t -l |  awk '{print $1".res"}' | parallel cp {} refine/ 
+cp $(ca -r -t -l |  awk '{print $1".res"}') refine/
 ```
 
 And deploy the relaxations with:
