@@ -46,9 +46,8 @@ def generate_fw_query(project, seed, state, query=None):
 
 
 @click.group('db')
-@click.option('--db-file', type=click.Path(exists=True))
 @click.pass_context
-def db(ctx, db_file):
+def db(ctx):
     """Options for the database"""
 
     db_file = ctx.obj.get('db_file')
@@ -210,21 +209,6 @@ def throughput(db_obj, group_by, past_days, projects, seeds, aggregate, plot,
                                'display.max_colwidth', 120):
             print(dataframe)
 
-
-@db.command('build-index')
-@click.option('--additional-field',
-              '-af',
-              multiple=True,
-              help='Additional field to include.')
-@pass_db_obj
-def build_index(db_obj, additional_field):
-    """
-    Build the index for optimum query performance
-    """
-    click.echo(
-        f'Requested to build the indices including additional fields: {additional_field}'
-    )
-    db_obj.build_indexes(additional_field)
 
 
 def get_launch_info(fws, query):

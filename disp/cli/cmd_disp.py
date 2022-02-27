@@ -12,6 +12,7 @@ from .cmd_deploy import deploy
 from .cmd_db import db
 from .cmd_check import check
 from .cmd_tools import tools
+from .cmd_admin import admin
 
 
 @click.group('disp')
@@ -33,3 +34,4 @@ main.add_command(deploy)
 main.add_command(db)
 main.add_command(check)
 main.add_command(tools)
+main.add_command(admin)

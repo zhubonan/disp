@@ -63,6 +63,7 @@ class SearchDB:
                  user: str = None,
                  password: str = None,
                  collection: str = 'disp_entry',
+                 lpad = None,
                  **kwargs):
 
         self.host = host
@@ -71,6 +72,7 @@ class SearchDB:
         self.password = password
         self.port = int(port)
         self.identity = {}
+        self.lpad = lpad
         try:
             self._engine_connection = connect(db=self.db_name,
                                               alias='disp',
@@ -124,7 +126,7 @@ class SearchDB:
         if self.identity:
             entry.creator = Creator(**self.identity)
 
-    def build_indexes(self, additional_fields=None, background=True):
+    def build_indexes(self, additional_fields=None, fw_additional_fields=None, wf_additional_fields=None, background=True):
         """
          Build the indexes to accelerate queries
          Args:
@@ -133,6 +135,10 @@ class SearchDB:
         """
         if additional_fields is None:
             additional_fields = []
+        if fw_additional_fields is None:
+            fw_additional_fields = []
+        if wf_additional_fields is None:
+            wf_additional_fields = []
         _indices = list(self.INDICIES)
         _indices.extend(additional_fields)
 
@@ -154,6 +160,14 @@ class SearchDB:
             self.database[self._ATOMATE_TASK_COLL].create_index([
                 (key, pymongo.DESCENDING), ('last_update', pymongo.DESCENDING)
             ])
+
+        # Fireworks tasks related
+        if self.lpad is not None:
+            lpad= self.lpad
+            for name in ['project_name', 'seed_name', 'struct_name', *fw_additional_fields]:
+                lpad.fireworks.create_index('spec.' + name, background=background)
+            for name in ['project_name', 'seed_name', 'disp_type', *wf_additional_fields]:
+                lpad.workflows.create_index('metadata.' + name, background=background)
 
     def insert_seed(self, project_name: str, seed_name: str,
                     seed_content: str):

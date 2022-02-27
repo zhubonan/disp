@@ -9,6 +9,10 @@ from this import d
 import pytest
 from click.testing import CliRunner
 from disp.cli.cmd_disp import main
+from fireworks.core.launchpad import LaunchPad
+
+from disp.database.api import SearchDB
+from disp.database.odm import InitialStructureFile, ResFile
 
 
 @pytest.fixture
@@ -176,3 +180,44 @@ def test_db_post_run(deploy_and_run):
         args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'db', cmd]
         output = runner.invoke(main, args)
         assert output.exit_code == 0
+
+def test_admin(deploy_and_run):
+    """Test analysis command post run"""
+
+    runner = CliRunner()
+
+    args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'deploy', 'search', '--code', 'pp3']
+    args.extend(['--seed', 'Al', '--num', '5', '--project', 'testproject'])
+    output = runner.invoke(main, args)
+    # Add more jobs
+
+    args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'admin', 'build-index']
+    output = runner.invoke(main, args)
+    assert output.exit_code == 0
+
+    args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'admin', 'update-category', '--project', 'testproject', '--category', 'A', '--category', 'B']
+    output = runner.invoke(main, args, input='y\n')
+    assert output.exit_code == 0
+
+    args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'admin', 'update-priority', '--project', 'testproject', '--priority', '10']
+    output = runner.invoke(main, args, input='y\n')
+    assert output.exit_code == 0
+
+    lpad = LaunchPad.from_file('my_launchpad.yaml')
+    fw_ids = lpad.get_fw_ids({'spec.project_name': 'testproject', 'spec._priority': 10})
+    assert len(fw_ids) == 5
+    fw_ids = lpad.get_fw_ids({'spec.project_name': 'testproject', 'spec._category': 'A'})
+    assert len(fw_ids) == 5
+    fw_ids = lpad.get_fw_ids({'spec.project_name': 'testproject', 'spec._category': 'B'})
+    assert len(fw_ids) == 5
+
+
+    args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'admin', 'delete-entries', '--project', 'testproject', '--commit']
+    output = runner.invoke(main, args, input='y\n')
+    assert output.exit_code == 0
+    fw_ids = lpad.get_fw_ids({})
+    assert len(fw_ids) == 0
+    
+    sdb = SearchDB.from_db_file('disp_db.yaml')
+    assert ResFile.objects.count() == 0 
+    assert InitialStructureFile.objects.count() == 0 
