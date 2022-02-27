@@ -26,7 +26,7 @@ DATA_DIR = MODULE_DIR / 'test_data'
 def datapath():
     return (Path(__file__).parent / 'test_data').absolute()
 
-@pytest.fixture(scope='session')
+@pytest.fixture()
 def new_db():
     """A brand new database"""
     import disp.database.api as dba

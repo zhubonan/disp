@@ -100,10 +100,6 @@ def test_db_commands(isolated_dir, new_db):
     output = runner.invoke(main, args)
     assert output.exit_code == 0
 
-    args = ['db', 'build-index']
-    output = runner.invoke(main, args)
-    assert output.exit_code == 0
-
     args = ['db', 'throughput', '--no-plot', ]
     output = runner.invoke(main, args)
     assert output.exit_code == 0
@@ -156,7 +152,7 @@ def deploy_and_run(isolated_project_dir, new_db, clean_launchpad):
     return isolated_project_dir
 
 
-def test_db_post_run(deploy_and_run):
+def test_db_post_run(deploy_and_run, new_db, clean_launchpad):
     """Test analysis command post run"""
 
     runner = CliRunner()
@@ -176,12 +172,12 @@ def test_db_post_run(deploy_and_run):
 
 
     # The launch dir command
-    for cmd in ['list-projects', 'list-seeds', 'build-index']:
+    for cmd in ['list-projects', 'list-seeds']:
         args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'db', cmd]
         output = runner.invoke(main, args)
         assert output.exit_code == 0
 
-def test_admin(deploy_and_run):
+def test_admin(deploy_and_run, new_db, clean_launchpad):
     """Test analysis command post run"""
 
     runner = CliRunner()
