@@ -5,7 +5,7 @@ $\mathrm{SrTiO_3}$ has a cubic perovskite structure at room temperature with spa
 
 ## Search with GULP
 
-In this example we search for its ground state using buckingham potential with long range coulumb interaction with [GULP](http://gulp.curtin.edu.au/gulp/).
+In this example we search for its ground state using buckingham potential with long range coulomb interaction with [GULP](http://gulp.curtin.edu.au/gulp/).
 
 The [Buckingham potential](https://en.wikipedia.org/wiki/Buckingham_potential) has the form:
 
@@ -145,7 +145,7 @@ This sets the species-wise minimum separation to be chosen randomly between 1.8 
 
 !!! tip
 
-    One can invoke more knowledge of the system - cation-cation or anion-aion distances are larger than cation-anion distances. Incorporating this in the structure generation process would further improve the efficiency. 
+    One can invoke more knowledge of the system - cation-cation or anion-anion distances are larger than cation-anion distances. Incorporating this in the structure generation process would further improve the efficiency. 
 
 We can now deploy our search with:
 

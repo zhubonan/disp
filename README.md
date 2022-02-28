@@ -11,7 +11,7 @@ The search is inherently parallel and fast time-to-solution can be achieved by s
 
 In practice, the computing resources can be scattered spatially and temporally - there might be multiple machines that the search can run on, the each job may have to queue and subsequently run for only a limited amount of time.
 
-DISP makes searching easier by providing a centralised server that handles distributing and controlling each search *worker*, getting real-time analytics data, as well as having maining a database of relaxed structures.
+DISP makes searching easier by providing a centralised server that handles distributing and controlling each search *worker*, getting real-time analytics data, as well as keeping a database of relaxed structures.
 It is built upon the original AIRSS package and is fully compatible with the latter. 
 
 ```mermaid
@@ -83,7 +83,7 @@ disp db summary
 Pull completed search on to the disk:
 
 ```
-disp db retrieved-project
+disp db retrieve-project
 ```
 
 
