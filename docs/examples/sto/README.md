@@ -390,6 +390,7 @@ $ tar -axf sto-res-dft-4c.tar.gz -O | grep  Total | awk 'BEGIN{x=0}{x+=$4}END{pr
 
 In this case, the estimated time for getting 200 relaxed structure is about 4000 core hours - a 43 % save in the computational resources by replacing 24-way MPI (24 cores) with 4-way MPI (cores) for performing relaxation!
 Even with a 10 % uncertainty due to the limited size and stochastic nature of the search, this is still a significant save to make. 
+
 Nevertheless, running with more workers each using fewer cores means that each relaxation would take longer time to complete, giving a reduced turn around rate.
 This may result in increased time-to-solution for small-scale searching more difficult relaxation can take much longer to finish. 
 For a search involving thousands of trials, the optimum strategy is to use low core counts first, and finish off the search with workers with increased cores counts. 
