@@ -85,4 +85,3 @@ disp db retrieved-project
 
 - Pickard, C. J.; Needs, R. J. High-Pressure Phases of Silane. Phys. Rev. Lett. 2006, 97 (4), 045504. https://doi.org/10.1103/PhysRevLett.97.045504.
 - Pickard, C. J.; Needs, R. J. Ab Initio Random Structure Searching. Journal of physics. Condensed matter : an Institute of Physics journal 2011, 23 (5), 053201–053201. https://doi.org/10.1088/0953-8984/23/5/053201.
-- AIRSS package (including download link): https://www.mtg.msm.cam.ac.uk/Codes/AIRSS 
