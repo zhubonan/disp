@@ -1,9 +1,15 @@
 # DISP (Distributed Structure Prediction)
 
-This package is for distributing the workload of *ab initio* random structure searching (AIRSS) over flexible computing resources.
+![test](https://github.com/zhubonan/disp/actions/workflows/python-package.yml/badge.svg)
+
+
+Documentation: https://zhubonan.github.io/disp/
+
+This package is for distributing the workload of *ab initio* random structure searching ([AIRSS](https://www.mtg.msm.cam.ac.uk/Codes/AIRSS)) over flexible computing resources.
 With AIRSS, random yet physically sensible candidate crystal structures are generated and subsequently relaxed. 
 The search is inherently parallel and fast time-to-solution can be achieved by simultaneously running many "small" (a few tens of cores) DFT calculations in a highly efficient way.
-In practice, the computing resources can be scattered spatially and temporary - there might be multiple machines that the search can run on, the each job may have to queue and subsequently run for only a limited amount of time.
+
+In practice, the computing resources can be scattered spatially and temporally - there might be multiple machines that the search can run on, the each job may have to queue and subsequently run for only a limited amount of time.
 
 DISP makes searching easier by providing a centralised server that handles distributing and controlling each search *worker*, getting real-time analytics data, as well as having maining a database of relaxed structures.
 It is built upon the original AIRSS package and is fully compatible with the latter. 
@@ -33,11 +39,11 @@ B --- W4[Worker4];
 
 ## Requirements
 
-- A MongDB server is needed to act as the centralised workflow controller and a place to store search results.
-- DISP and its python dependencies needs to be installed on both the local computer and the remote computing cluster/super computer
-- Behind the scene, an extended version [fireworks](https://github.com/materialsproject/fireworks) is used for workflow management, it will be installed automatically
-- We target the use of plane wave DFT code [CASTEP](http://www.castep.org) for searching, although support for other code can be added easily if needed.
-- Scheduler supported is limited to SGE and SLURM at the moment. Other can be added on request, given it is possible to acquire wall time limits at run time.
+- A MongoDB server is needed to act as the centralised workflow controller and a place to store search results.
+- DISP and its python dependencies needs to be installed on both the local computer and the remote computing cluster/super computer, together with [AIRSS](https://www.mtg.msm.cam.ac.uk/Codes/AIRSS). 
+- Behind the scene, an extended version [fireworks](https://github.com/materialsproject/fireworks) is used for workflow management, it should be installed automatically with DISP. 
+- The plane wave DFT code [CASTEP](http://www.castep.org) is used for searching, although support for other code can be added if needed.
+- Scheduler supported is limited to SGE and SLURM at the moment, but others can be added, given that job information is available at the run time.
 
 ## Usage
 
