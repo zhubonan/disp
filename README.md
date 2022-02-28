@@ -36,6 +36,19 @@ B --- W2[Worker2];
 B --- W3[Worker3];
 B --- W4[Worker4];
 ```
+## Installation
+
+A newer version of `pip` ( `>21`) might be needed - upgrade with:
+
+```
+pip install -U pip
+```
+
+install the package with:
+
+``` none
+pip install git+https://https://github.com/zhubonan/disp
+```
 
 ## Requirements
 

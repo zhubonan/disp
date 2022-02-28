@@ -30,6 +30,14 @@ Once the above is done, the DISP package can be installed using
 pip install git+https://https://github.com/zhubonan/disp
 ```
 
+!!! note
+
+    A newer version of `pip` (`>21`) might be needed - upgrade with:
+
+    ```
+    pip install -U pip
+    ```
+
 This will install the package with its dependencies. After this the
 command `disp` will be available to use.
 
