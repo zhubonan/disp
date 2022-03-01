@@ -1,6 +1,7 @@
 # DISP (Distributed Structure Prediction)
 
-![test](https://github.com/zhubonan/disp/actions/workflows/python-package.yml/badge.svg)
+![build](https://github.com/zhubonan/disp/actions/workflows/build.yml/badge.svg)
+![docs](https://github.com/zhubonan/disp/actions/workflows/docs.yml/badge.svg)
 
 
 Documentation: https://zhubonan.github.io/disp/
