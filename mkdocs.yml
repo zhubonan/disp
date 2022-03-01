@@ -3,6 +3,9 @@ theme:
   name: material
   icon:
     repo:  fontawesome/brands/github
+  palette:
+    primary: cyan
+    
 nav:
   - Home: "index.md"
   - Getting Started: 
