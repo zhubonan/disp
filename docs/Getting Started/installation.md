@@ -2,7 +2,7 @@
 
 A working setup of
 [fireworks](https://materialsproject.github.io/fireworks/) is needed for
-using this pacakge. This typically includes setting up a MongoDB server
+using this package. This typically includes setting up a MongoDB server
 that is both accessible by the local computer and the remote clusters
 (compute nodes). The python
 [fireworks](https://materialsproject.github.io/fireworks/) package needs
