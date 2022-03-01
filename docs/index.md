@@ -49,10 +49,10 @@ interacting with DISP is through a command line interface (CLI). The
 packaged is aimed to be fully compatible with the toolkit provided by
 the original open sourced (GPLv2) AIRSS toolkit.
 
-The plane-wave DFT code [CASTEP](https://castep.org) is recommended for
+The plane-wave DFT code [CASTEP](http://www.castep.org) is recommended for
 running the search due to its robustness electronic solver and reliable
 local optimisation routines. Typically, the search is done with
 calculations optimised for speed rather than accuracy (convergence), and
 addition calculations (refinement) will need to be run on a small set of
 low energy structures. DISP also supports directly launching these
-workloads using CASTEP and VASP (through [automate]()).
+workloads using CASTEP and VASP (through [automate](https://github.com/hackingmaterials/atomate)).

@@ -1,6 +1,8 @@
 site_name: DISP
 theme:
   name: material
+  icon:
+    repo:  fontawesome/brands/github
 nav:
   - Home: "index.md"
   - Getting Started: 
@@ -46,6 +48,3 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 repo_url: https://github.com/zhubonan/disp
-theme:
-  icon:
-    repo: fontawesome/brands/github

@@ -280,7 +280,7 @@ First, create the `SrTiO3-refine.cell` and `SrTiO3-refine.param` with revised pa
     ```
 
 Where the `SPECIES_POT` is changed from `QC5` to `C19`.
-The latter is a library with more accurate pseudopotentials ([delta = 0.3 meV]()).
+The latter is a library with more accurate pseudopotentials ([delta = 0.4 meV](https://molmod.ugent.be/deltacodesdft)).
 In addition, the spaces of generated kpoints is requested to be at most $0.05 2\pi \unicode{x212B}^{-1}$ for improved sampling of the reciprocal space. 
 
 !!! example "SrTiO3-refine.param"
