@@ -31,9 +31,6 @@ jobs:
         run: |
           mkdocs build -d ../docs_build
 
-      - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@1.24
-        # Or use mhausenblas/mkdocs-deploy-gh-pages@nomaterial to build without the mkdocs-material theme
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
