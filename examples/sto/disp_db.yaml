@@ -1,7 +1,0 @@
-host: localhost
-port: 27017
-database: disp-db-testing
-collection: disp_entry
-user: null
-password: null
-authsource: admin
