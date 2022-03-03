@@ -4,7 +4,7 @@ theme:
   icon:
     repo:  fontawesome/brands/github
   palette:
-    primary: cyan
+    primary: purple
     
 nav:
   - Home: "index.md"

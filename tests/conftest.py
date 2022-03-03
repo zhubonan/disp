@@ -96,7 +96,7 @@ def clean_launchpad(launchpad):
 
 @pytest.fixture
 def temp_workdir():
-    """Fixture for goining into a temporary directory"""
+    """Fixture for going into a temporary directory"""
     tempdir = tempfile.mkdtemp()
     current_dir = os.getcwd()
     os.chdir(tempdir)
