@@ -18,7 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 doc = [
-    "mkdocs~=1.2", "mkdocs-material~=8"
+    "mkdocs~=1.2", "mkdocs-material~=8.2.1"
 ]
 test = ["pytest"]
 vasp = ["atomate"]
