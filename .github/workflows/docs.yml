@@ -29,7 +29,7 @@ jobs:
           pip install .[doc]
       - name: Build documentation
         run: |
-          mkdocs build -d ../docs_build
+          mkdocs build -d ./docs_build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
