@@ -63,7 +63,7 @@ class SearchDB:
                  user: str = None,
                  password: str = None,
                  collection: str = 'disp_entry',
-                 lpad = None,
+                 lpad=None,
                  **kwargs):
 
         self.host = host
@@ -126,7 +126,11 @@ class SearchDB:
         if self.identity:
             entry.creator = Creator(**self.identity)
 
-    def build_indexes(self, additional_fields=None, fw_additional_fields=None, wf_additional_fields=None, background=True):
+    def build_indexes(self,
+                      additional_fields=None,
+                      fw_additional_fields=None,
+                      wf_additional_fields=None,
+                      background=True):
         """
          Build the indexes to accelerate queries
          Args:
@@ -163,11 +167,19 @@ class SearchDB:
 
         # Fireworks tasks related
         if self.lpad is not None:
-            lpad= self.lpad
-            for name in ['project_name', 'seed_name', 'struct_name', *fw_additional_fields]:
-                lpad.fireworks.create_index('spec.' + name, background=background)
-            for name in ['project_name', 'seed_name', 'disp_type', *wf_additional_fields]:
-                lpad.workflows.create_index('metadata.' + name, background=background)
+            lpad = self.lpad
+            for name in [
+                    'project_name', 'seed_name', 'struct_name',
+                    *fw_additional_fields
+            ]:
+                lpad.fireworks.create_index('spec.' + name,
+                                            background=background)
+            for name in [
+                    'project_name', 'seed_name', 'disp_type',
+                    *wf_additional_fields
+            ]:
+                lpad.workflows.create_index('metadata.' + name,
+                                            background=background)
 
     def insert_seed(self, project_name: str, seed_name: str,
                     seed_content: str):
@@ -379,7 +391,8 @@ class SearchDB:
             aggregate)[group_by].count().unstack(level=0)
         tdf.name = 'Completed'
         if plot:
-            tdf.index = tdf.index.tz_localize('UTC').tz_convert('Europe/London')
+            tdf.index = tdf.index.tz_localize('UTC').tz_convert(
+                'Europe/London')
             tdf.index = [x.strftime('%d/%m %H00') for x in tdf.index]
             tdf.plot.bar(stacked=True)
             plt.xlabel('Creation time')
@@ -391,7 +404,6 @@ class SearchDB:
         else:
             # Save the data
             tdf.to_csv('throughput.csv')
-
 
         return tdf
 
@@ -632,7 +644,9 @@ def get_pipeline(cls_string,
     return pipeline
 
 
-def get_atomate_wflows(wf_coll, states, seed_regex=None,
+def get_atomate_wflows(wf_coll,
+                       states,
+                       seed_regex=None,
                        project_regex=None) -> pd.DataFrame:
     """Obtain workflow informaton for atomate jobs"""
     return get_workflows(wf_coll, ['atomate-relax'],
@@ -641,7 +655,9 @@ def get_atomate_wflows(wf_coll, states, seed_regex=None,
                          project_regex=project_regex)
 
 
-def get_std_wflows(wf_coll, states, seed_regex=None,
+def get_std_wflows(wf_coll,
+                   states,
+                   seed_regex=None,
                    project_regex=None) -> pd.DataFrame:
     """Obtain workflow informaton for standard search jobs"""
     return get_workflows(wf_coll, ['relax', 'search'],
@@ -723,7 +739,6 @@ def worker_aggregation(launch_col='launches'):
 
 class StructCounts:
     """Class for querying the database to obtain the structure counts"""
-
     def __init__(self,
                  disp_coll: str,
                  fw_coll: str,
@@ -793,8 +808,19 @@ class StructCounts:
             final_df = struct_count.copy()
             final_df['init_structures'] = 0.0
 
-        final_df.columns = pd.MultiIndex.from_tuples([('Structure', 'RES'),
-                                                      ('Structure', 'Init')])
+        # Handle cases with missing columns
+        if len(final_df.columns) == 2:
+            final_df.columns = pd.MultiIndex.from_tuples([('Structure', 'RES'),
+                                                          ('Structure', 'Init')
+                                                          ])
+        elif 'res' in final_df.columns:
+            final_df.columns = pd.MultiIndex.from_tuples([
+                ('Structure', 'RES'),
+            ])
+        elif 'init_structs' in final_df.columns:
+            final_df.columns = pd.MultiIndex.from_tuples([
+                ('Structure', 'Init'),
+            ])
 
         # Blend in workflow information
         if len(wdf) > 0:
@@ -867,8 +893,7 @@ class StructCounts:
         sdf = pd.DataFrame(data, columns=['seed', 'project', 'res'])
         dtime = time.time() - ttmp
         self.logger.info(
-            f'Obtained relaxed structure counts - time elapsed {dtime:.2f}'
-        )
+            f'Obtained relaxed structure counts - time elapsed {dtime:.2f}')
 
         # Include initial structures
         ttmp = time.time()
@@ -884,7 +909,6 @@ class StructCounts:
 
         dtime = time.time() - ttmp
         self.logger.info(
-            f'Obtained initial structure counts - time elapsed {dtime:.2f} s'
-        )
+            f'Obtained initial structure counts - time elapsed {dtime:.2f} s')
 
         return sdf, idf
