@@ -27,6 +27,7 @@ nav:
     - Introduction: "AIRSS Guide/introduction.md"
     - Inputs: "AIRSS Guide/inputs.md"
     - castep_relax: "AIRSS Guide/castep_relax.md"
+  - FAQ: "FAQ.md"
 
 markdown_extensions:
   - attr_list
