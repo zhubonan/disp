@@ -45,7 +45,7 @@ def test_build_index(clean_db):
     clean_db.build_indexes(['param_hash'])
     info = clean_db.collection.index_information()
 
-    for idx_name in clean_db.INDICIES:
+    for idx_name in clean_db.INDICES:
         assert any([idx_name in key for key in info.keys()])
     assert any(['param_hash' in key for key in info.keys()])
 
