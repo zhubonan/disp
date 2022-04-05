@@ -47,11 +47,11 @@ class SearchDB:
     Database backend for storing search results
     """
     logger = getLogger(__name__)
-    INDICIES = [
+    INDICES = [
         'project_name', 'seed_name', 'created_on', 'md5hash', 'struct_name'
     ]
     _ATOMATE_TASK_COLL = 'atomate_tasks'  # Name of the collection for atomate tasks
-    INDICIES_ATOMATE_TASKS = [
+    INDICES_ATOMATE = [
         'project_name', 'seed_name', 'struct_name', 'uuid', 'unique_name',
         'task_label', 'disp_type', 'last_updated'
     ]
@@ -143,7 +143,7 @@ class SearchDB:
             fw_additional_fields = []
         if wf_additional_fields is None:
             wf_additional_fields = []
-        _indices = list(self.INDICIES)
+        _indices = list(self.INDICES)
         _indices.extend(additional_fields)
 
         for key in _indices:
@@ -153,9 +153,14 @@ class SearchDB:
         for key in ['project_name', 'seed_name']:
             self.collection.create_index([(key, pymongo.DESCENDING),
                                           ('created_on', pymongo.DESCENDING)])
+            # For selection with _cls
+            self.collection.create_index([(key, pymongo.DESCENDING),
+                                          ('_cls', pymongo.DESCENDING)])
+            self.collection.create_index(key)
 
         # Build indices for atomate tasks collection
-        for key in self.INDICIES_ATOMATE_TASKS:
+        # Assuming the collection is in the same database
+        for key in self.INDICES_ATOMATE:
             self.database[self._ATOMATE_TASK_COLL].create_index(
                 key, background=background)
 
@@ -780,7 +785,7 @@ class StructCounts:
         # This would set some filters - based on the state and selected projects
         wdf = self.get_wf_collection()
 
-        if len(wdf) == 0:
+        if len(wdf) == 0 and self.wf_mode != 'none':
             self.logger.info('No workflow matches the query.')
             if self.projects is not None or self.seeds is None:
                 return wdf
@@ -843,6 +848,8 @@ class StructCounts:
             wf_records = get_atomate_wflows(self.wf_coll, self.states,
                                             self.seed_regex,
                                             self.project_regex)
+        elif self.wf_mode == 'none':
+            wf_records = []
         else:
             raise ValueError(f'Unknown wf_mode: {self.wf_mode}')
 
