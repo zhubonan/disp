@@ -186,7 +186,7 @@ It can be seen that ground state structure ($Pm\bar{3}m$) has been encountered s
     As with all global search methods, there is no guarantee that the ground state is found.
     Given a $3\%$ encounter rate, the odds of finding the ground state out of 200 trials is:
 
-    $$1 - (0.97)^200 = 99.7 \% $$
+    $$1 - (0.97)^{200} = 99.7 \% $$
 
     Still, one can not rule our that there exists a true ground state with lower encounter rate.
     For example, if the encounter rate is 0.1%, the odds of finding it in 200 trials is only $18.1\%$.
