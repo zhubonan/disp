@@ -7,7 +7,7 @@ from pprint import pformat
 
 import click
 from fireworks.core.firework import Workflow
-from fireworks.core.launchpad import LaunchPad, LAUNCHPAD_LOC
+from fireworks.core.launchpad import LaunchPad
 from ase.io import read
 
 from disp.fws.works import AirssSearchFW, RelaxFW
@@ -22,6 +22,7 @@ SUFFIX_MAP = {
     'pp3': '.pp',
 }
 
+
 @click.group('deploy')
 @click.pass_context
 def deploy(ctx):
@@ -29,6 +30,7 @@ def deploy(ctx):
     lpad_file = ctx.obj['lpad_file']
     ctx.obj = LaunchPad.from_file(lpad_file)
     click.echo(f'Using launchpad file at `{lpad_file}`')
+
 
 pass_lpad = click.make_pass_decorator(LaunchPad)
 
@@ -110,8 +112,9 @@ def info(lpad):
     'Alias for resolving the CASTEP executable, as define in the worker file.')
 @click.option('--cluster', is_flag=True, default=False)
 @pass_lpad
-def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dryrun,
-                  priority, category, gzip, record_db, modcell, castep_code, cluster):
+def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name,
+                  dryrun, priority, category, gzip, record_db, modcell,
+                  castep_code, cluster):
     """
     Deploy the search by uploading it to the Fireserver
     """
@@ -189,9 +192,9 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dr
         click.echo('And parameters:')
         click.echo(param_content)
         if keep:
-            click.echo(f'The intermediate files will be kept.')
+            click.echo('The intermediate files will be kept.')
         else:
-            click.echo(f'The intermediate files will not be kept.')
+            click.echo('The intermediate files will not be kept.')
 
         click.echo(f'The default executable for tasks is: {exe}')
         click.echo(
@@ -215,12 +218,18 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dr
     type=str,
     help=
     ('Base cell files to be used.'
-     'The "cell" file passed will be only used to define the crystal structure.'
+     'If supplied, the'
+     ' "cell" file passed will be only used to define the crystal structure as read using ASE.'
+     'Hence, any ASE-supported geometry file can be used for defining the structures to be relaxed.'
      ))
-@click.option('--cell',
-              required=True,
-              type=str,
-              help='Path the cell files - support globbing')
+@click.option(
+    '--cell',
+    required=True,
+    type=str,
+    help=
+    ('Path the cell files - support globbing. If `--base-cell` is supplied, '
+     'any ase-support format may be used, otherwise only CASTEP .cell files are allowed.'
+     ))
 @click.option('--priority',
               type=int,
               help='Priority to be used for the workflow')
@@ -270,9 +279,9 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name, dr
               default='castep')
 @click.option('--cluster', is_flag=True, default=False)
 @pass_lpad
-def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe, cycles,
-                 keep, dryrun, priority, gzip, record_db, category, cluster,
-                 extra_cell_file, castep_code):
+def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe,
+                 cycles, keep, dryrun, priority, gzip, record_db, category,
+                 cluster, extra_cell_file, castep_code):
     """
     Deploy a workflow to do relaxation of a particular structure
     """
@@ -352,9 +361,9 @@ def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe, cycles,
         click.echo('And parameters:')
         click.echo(param_content)
         if keep:
-            click.echo(f'The intermediate files will be kept.')
+            click.echo('The intermediate files will be kept.')
         else:
-            click.echo(f'The intermediate files will not be kept.')
+            click.echo('The intermediate files will not be kept.')
 
         click.echo(f'The default executable for tasks is: {exe}')
         click.echo(

@@ -1,14 +1,19 @@
 """
 Wrapper for using SHEAP
 """
+from pathlib import Path
 from typing import List, Union
 from collections import namedtuple
 from copy import deepcopy
 from io import StringIO
 
 from subprocess import Popen, PIPE, DEVNULL
+from ase.io import read
+from ase import Atoms
 
 import numpy as np
+
+import pandas as pd
 
 SHEAP_OPT_MAP = dict(
     format_in='-read',
@@ -150,14 +155,15 @@ def write_sheap_vec(handle,
 
 
 SheapOut = namedtuple('SheapOut',
-                      ('labels', 'nforms', 'form', 'sym', 'c1', 'c2', 'nfound',
-                       'radius', 'coords', 'nitems', 'cost'))
+                      ('labels', 'nforms', 'form', 'sym', 'volume', 'enthalpy',
+                       'nfound', 'radius', 'coords', 'nitems', 'cost'))
 
 
 def run_sheap(vectors: Union[np.ndarray, List[np.ndarray]],
               sheap_param: SheapParams,
               metadata: bool = None,
-              no_stdout: bool = False) -> SheapOut:
+              no_stdout: bool = False,
+              dump_output=False) -> SheapOut:
     """Run SHEAP and get the results back"""
 
     cmdline = sheap_param.get_cmdline_args()
@@ -177,6 +183,9 @@ def run_sheap(vectors: Union[np.ndarray, List[np.ndarray]],
         lines = input_buffer.read()
 
         output, _ = popen.communicate(lines)
+    if dump_output:
+        with open('sheap.out', 'w') as fhandle:
+            fhandle.write(output)
     return parse_sheap_output(output.splitlines())
 
 
@@ -187,8 +196,8 @@ def parse_sheap_output(indata) -> SheapOut:
     labels = []
     nforms = []
     sym = []
-    c1 = []  # pylint: disable=invalid-name
-    c2 = []  # pylint: disable=invalid-name
+    volume = []  # pylint: disable=invalid-name
+    enthalpy = []  # pylint: disable=invalid-name
     nfound = []
     radius = []
     offset = 0
@@ -221,9 +230,115 @@ def parse_sheap_output(indata) -> SheapOut:
         nforms.append(int(tokens[2 + dim]))
         form.append(tokens[3 + dim])
         sym.append(tokens[4 + dim])
-        c1.append(float(tokens[5 + dim]))
-        c2.append(float(tokens[6 + dim]))
+        volume.append(float(tokens[5 + dim]))
+        enthalpy.append(float(tokens[6 + dim]))
         nfound.append(int(tokens[7 + dim]))
+        radius.append(float(tokens[8 + dim]))
 
-    return SheapOut(labels, nforms, form, sym, c1, c2, nfound, radius, coords,
-                    nitems, cost)
+    return SheapOut(labels, nforms, form, sym, volume, enthalpy, nfound,
+                    radius, coords, nitems, cost)
+
+
+def get_sheap_metadata(dataframe: pd.DataFrame) -> List[SheapMetadata]:
+    """
+    Assemble a list of SheapMetadata objects based an dataframe
+    """
+    metadata = []
+    for _, row in dataframe.iterrows():
+        metadata.append(
+            SheapMetadata(label=row.label,
+                          natoms=row.natoms,
+                          form=row.reduced_formula,
+                          enthalpy=row.enthalpy,
+                          sym=row.symm,
+                          volume=row.volume))
+    return metadata
+
+
+def sheap_to_dict(sheapout: SheapOut, structure_path: Union[dict, str, Path]):
+    """
+    Convert the output of SHEAP to JSON dictionary format for Chemiscope
+    """
+
+    outdict = {
+        'meta': {
+            'name': 'SHEAP',
+            'description': 'Map generated with SHEAP'
+        },
+    }
+    outdict['properties'] = {}
+    outdict['properties']['volume'] = {
+        'target': 'structure',
+        'values': sheapout.volume
+    }
+    outdict['properties']['count'] = {
+        'target': 'structure',
+        'values': sheapout.nfound
+    }
+    outdict['properties']['radius'] = {
+        'target': 'structure',
+        'values': sheapout.radius
+    }
+    # Compute the sizes
+    sizes = np.array(sheapout.radius)**2 * np.pi
+    outdict['properties']['size'] = {
+        'target': 'structure',
+        'values': sizes.tolist()
+    }
+    outdict['properties']['energy'] = {
+        'target': 'structure',
+        'values': sheapout.enthalpy
+    }
+    outdict['properties']['label'] = {
+        'target': 'structure',
+        'values': sheapout.labels
+    }
+
+    coords = sheapout.coords
+    dims = len(sheapout.coords[0])
+    for dim in range(dims):
+        outdict['properties'][f'sheap{dim+1}'] = {
+            'target': 'structure',
+            'values': [entry[dim] for entry in coords]
+        }
+
+    structures = []
+    spacegroups = []
+    # Include structures
+    for label in sheapout.labels:
+        # Locate the file
+        if isinstance(structure_path, dict):
+            atoms = structures[label]
+        else:
+            # Load the atoms
+            atoms = read(str(Path(structure_path) / f'{label}.res'))
+        spacegroups.append(atoms.info.get('spacegroup'))
+        structures.append(atoms_to_json(atoms))
+    outdict['structures'] = structures
+
+    # Spacegroups - detected
+    if spacegroups:
+        outdict['properties']['spacegroup'] = {
+            'target': 'structure',
+            'values': spacegroups
+        }
+    return outdict
+
+
+def atoms_to_json(atoms: Atoms) -> dict:
+    """
+    Convert ase.Atoms to the JSON serialization format used by Chemiscope
+
+    Returns a dictionary of the representation.
+    """
+    data = {}
+    data['size'] = len(atoms)
+    data['names'] = list(atoms.symbols)
+    data['x'] = [float(value) for value in atoms.positions[:, 0]]
+    data['y'] = [float(value) for value in atoms.positions[:, 1]]
+    data['z'] = [float(value) for value in atoms.positions[:, 2]]
+
+    if (atoms.cell.lengths() != [0.0, 0.0, 0.0]).all():
+        data['cell'] = list(np.concatenate(atoms.cell))
+
+    return data
