@@ -277,11 +277,16 @@ def deploy_search(lpad, code, seed, project, num, exe, cycles, keep, wf_name,
               show_default=True,
               help='Code to use for relaxation',
               default='castep')
+@click.option(
+    '--modcell',
+    help=
+    'Function to be used to modified to cell file. Such function should receives a list of lines and return a new list of lines.'
+)
 @click.option('--cluster', is_flag=True, default=False)
 @pass_lpad
 def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe,
                  cycles, keep, dryrun, priority, gzip, record_db, category,
-                 cluster, extra_cell_file, castep_code):
+                 cluster, extra_cell_file, castep_code, modcell):
     """
     Deploy a workflow to do relaxation of a particular structure
     """
@@ -322,6 +327,21 @@ def deploy_relax(lpad, code, seed, cell, base_cell, param, project, exe,
             cell_content = '\n'.join(modify_cell(base_cell, atoms)) + '\n'
         else:
             cell_content = cell_from_file(str(cell_path))
+
+        # Allow a custom python function to be used to modified the cell
+        if modcell is not None:
+            tokens = modcell.split(':')
+            if len(tokens) == 2:
+                func_name = tokens[1]
+                mod = __import__(tokens[0].replace('.py', ''), globals(),
+                                 locals(), [str(func_name)], 0)
+                modfunc = getattr(mod, func_name)
+            else:
+                raise ValueError(
+                    '--modcell options should be in the format of `filename:func`.'
+                )
+            # Apply the function
+            cell_content = '\n'.join(modfunc(cell_content.split('\n')))
 
         # Apply extra cell lines if necessary
         if extra_cell_content:
