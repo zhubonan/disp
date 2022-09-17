@@ -1,33 +1,41 @@
-exclude: '^(doc)|(cookiecutters)|(aiida_vasp/test_data)'
+# Install pre-commit hooks via:
+# pre-commit install
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v2.3.0
+  rev: v4.1.0
   hooks:
-  - id: trailing-whitespace
-    files: \.(py)$
-  - id: end-of-file-fixer
-    files: \.(py)$
-  - id: check-yaml
-  - id: check-json
-  - id: check-added-large-files
-  - id: double-quote-string-fixer
-  - id: forbid-new-submodules
+    - id: end-of-file-fixer
+    - id: mixed-line-ending
+    - id: trailing-whitespace
+    - id: check-json
 
-# - repo: git://github.com/pre-commit/mirrors-yapf
-#   rev: v0.28.0
+- repo: https://github.com/asottile/pyupgrade
+  rev: v2.31.0
+  hooks:
+  - id: pyupgrade
+    args: ["--py37-plus"]
+
+- repo: https://github.com/PyCQA/isort
+  rev: 5.10.1
+  hooks:
+    - id: isort
+      args: ["--profile", "black",  --line-length=72]
+
+- repo: https://github.com/psf/black
+  rev: 22.3.0
+  hooks:
+    - id: black
+      args: ["--line-length=140"]
+
+# - repo: local
 #   hooks:
-#   - id: yapf
+#   - id: pylint
 #     language: system
-#     types: [python]
-
-- repo: https://github.com/PyCQA/prospector
-  rev: 1.1.7
-  hooks:
-  - id: prospector
-    language: system
-    types: [python]
-
-- repo: git://github.com/Lucas-C/pre-commit-hooks-markup
-  rev: v1.0.0
-  hooks:
-  - id: rst-linter
+#     types: [file, python]
+#     name: pylint
+#     description: "This hook runs the pylint static code analyzer"
+#     exclude: &exclude_files >
+#       (?x)^(
+#           docs/.*|
+#       )$
+#     entry: pylint

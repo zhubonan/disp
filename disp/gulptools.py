@@ -2,15 +2,13 @@
 Tools for working with GULP
 """
 import re
-from collections import namedtuple
 import subprocess
 import sys
+from collections import namedtuple
 
-Ginfo = namedtuple('Ginfo', ['cycle', 'energy', 'gnorm', 'cpu'])
+Ginfo = namedtuple("Ginfo", ["cycle", "energy", "gnorm", "cpu"])
 
-GEOM_LINE_PATTERN = re.compile(
-    r'^ +Cycle:([ 0-9]+)Energy:([-0-9e*. ]+)Gnorm:([-0-9e*. ]+)CPU:([-0-9e. ]+)'
-)
+GEOM_LINE_PATTERN = re.compile(r"^ +Cycle:([ 0-9]+)Energy:([-0-9e*. ]+)Gnorm:([-0-9e*. ]+)CPU:([-0-9e. ]+)")
 
 
 def gemo_opt_progress(gfile):
@@ -38,7 +36,7 @@ def check_gulp(gfile):
     # Check for the existing of the **** entries
     gnorms = []
     for entry in gopt:
-        if '*' in entry.energy or '*' in entry.gnorm:
+        if "*" in entry.energy or "*" in entry.gnorm:
             return False
         gnorms.append(float(entry.gnorm))
 
@@ -50,7 +48,7 @@ def check_gulp(gfile):
     return True
 
 
-def guarded_gulp(exe='gulp'):
+def guarded_gulp(exe="gulp"):
     """
     A python function that help running GULP
 
@@ -58,23 +56,20 @@ def guarded_gulp(exe='gulp'):
     will be terminated if the energy or Gnorm becomes *****
     """
 
-    proc = subprocess.Popen([exe],
-                            stdin=sys.stdin,
-                            stdout=subprocess.PIPE,
-                            universal_newlines=True)
+    proc = subprocess.Popen([exe], stdin=sys.stdin, stdout=subprocess.PIPE, universal_newlines=True)
 
     run_ok = True
     data_lines = []
     while proc.poll() is None:
         new_line = proc.stdout.readline()
-        print(new_line, end='')
+        print(new_line, end="")
         data_lines.append(new_line)
         # Check if we are OK so far
         run_ok = check_gulp(data_lines)
         if run_ok is False:
             proc.terminate()
     # Print the rest of the stdout
-    print(proc.stdout.read(), end='')
+    print(proc.stdout.read(), end="")
     sys.stdout.flush()
 
     return run_ok

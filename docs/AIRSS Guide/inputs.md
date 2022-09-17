@@ -217,20 +217,20 @@ A default `param` file for CASTEP from `gencell` looks like this:
 
     ```
     task                 : geometryoptimization
-    xc_functional        : PBE 
-    spin_polarized       : false 
-    fix_occupancy        : false 
-    metals_method        : dm 
-    mixing_scheme        : pulay 
-    max_scf_cycles       : 1000 
+    xc_functional        : PBE
+    spin_polarized       : false
+    fix_occupancy        : false
+    metals_method        : dm
+    mixing_scheme        : pulay
+    max_scf_cycles       : 1000
     cut_off_energy       : 340 eV
-    opt_strategy         : speed 
-    page_wvfns           : 0 
-    num_dump_cycles      : 0 
-    backup_interval      : 0 
-    geom_method          : LBFGS 
-    geom_max_iter        : 20 
-    mix_history_length   : 20 
+    opt_strategy         : speed
+    page_wvfns           : 0
+    num_dump_cycles      : 0
+    backup_interval      : 0
+    geom_method          : LBFGS
+    geom_max_iter        : 20
+    mix_history_length   : 20
     finite_basis_corr    : 0
     fixed_npw            : true
     write_cell_structure : true

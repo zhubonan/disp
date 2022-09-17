@@ -14,5 +14,5 @@
 
 This package (`disp`) only supports CASTEP. The latter can be obtained free-of-charge for academic use by signing up the academic license: https://licenses.stfc.ac.uk/product/castep.
 
-In theory, any DFT code (and interatomic potential codes) can be use to relax the structures. The stock `airss.pl` driver script actually support quite a few. 
+In theory, any DFT code (and interatomic potential codes) can be use to relax the structures. The stock `airss.pl` driver script actually support quite a few.
 CASTEP is well tested for running AIRSS search, and its robust electronic and geometry minimisation implementations can benefit calculations with geometries that are far from local minima (e.g. generated random structures).

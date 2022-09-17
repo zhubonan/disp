@@ -6,7 +6,7 @@ It is recommanded that you install all packages in a [conda environment](https:/
 
 ## Installation using `conda` environment manager
 
-For computing clusters and supercomputers, the default `HOME` folder of user may not be mounted on the computer nodes. 
+For computing clusters and supercomputers, the default `HOME` folder of user may not be mounted on the computer nodes.
 If that if the case, you can install [miniconda3](https://docs.conda.io/en/latest/miniconda.html) onto the work/scratch partition and use a activation script to enable the environment.
 
 Example activation script:
@@ -83,11 +83,11 @@ fi
 ```
 
 
-In this example, each compute node has 128 CPUs and we want to run four 32-core CASTEP jobs concurrent for relaxing the structure. 
+In this example, each compute node has 128 CPUs and we want to run four 32-core CASTEP jobs concurrent for relaxing the structure.
 This is achieve by the line below:
 
 ```
-CMD="trlaunch -l ${WORK_DIR}/disp-base/config/my_launchpad.yaml -w ./fworker-32-core.yaml multi 4 --timeout 86000 --local_redirect" 
+CMD="trlaunch -l ${WORK_DIR}/disp-base/config/my_launchpad.yaml -w ./fworker-32-core.yaml multi 4 --timeout 86000 --local_redirect"
 ```
 
 which runs 4 concurrent workers, each using 32 CPUs.
@@ -114,13 +114,13 @@ env:
 ```
 
 The `env` section contains directive specific for this worker.
-The `castep_codes` contains a dictionary of code alias and the full command to be used for launching CASTEP. 
+The `castep_codes` contains a dictionary of code alias and the full command to be used for launching CASTEP.
 It the requesteed code is not found in this section, the default `castep.mpi` (from `$PATH`) will be used with prefix from `MPI_LAUNCH_CMD` used.
 The `category` allows controling the placement of workload.
 Each search can be associated with one or more categories, and only those *worker* with matching category will pull the job to run.
 For example, those with small unit cells can be run with few number of MPI processes (to improve the overall throughput).
 
-In this example, advanced *job step* capability of the SLURM scheduler is used to run many smaller jobs inside a single job, using the `srun` MPI launcher. 
+In this example, advanced *job step* capability of the SLURM scheduler is used to run many smaller jobs inside a single job, using the `srun` MPI launcher.
 Care should be taken to verify the CPU resources are indeed allocated in the correct way.
 
 

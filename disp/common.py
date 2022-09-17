@@ -1,8 +1,8 @@
 """
 Module for common stuff
 """
-import re
 import io
+import re
 
 
 class RelaxError(RuntimeError):

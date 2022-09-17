@@ -39,4 +39,4 @@ use this script manually, although it can useful when testing the
 parameters or for performing manual relaxations of reference structures.
 
 In the standard AIRSS search, this script is invoked by
-`airss.pl` internally for CASTEP relaxation. 
+`airss.pl` internally for CASTEP relaxation.

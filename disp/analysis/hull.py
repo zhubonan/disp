@@ -15,6 +15,7 @@ class PlotlyPDPlotter(PDPlotter):
     This may only work with the old pymatgen version that does not have the native plotly
     backend support
     """
+
     @property
     def pd_plot_data_ternary(self):
         """
@@ -24,18 +25,16 @@ class PlotlyPDPlotter(PDPlotter):
             (lines, stable_entries, unstable_entries):
             Same as pd_plot_data, but in proper ternary coordinates
         """
-        assert self._dim == 3, 'Cannot get data for ternary plot - the system is not ternary'
+        assert self._dim == 3, "Cannot get data for ternary plot - the system is not ternary"
         pd = self._pd
         entries = pd.qhull_entries
 
         def recover_a(old_data):
             """Recover the a coordinates"""
             old_shape = old_data.shape
-            data = np.zeros(
-                (old_shape[0], old_shape[1] + 1))  # Convert to numpy format
+            data = np.zeros((old_shape[0], old_shape[1] + 1))  # Convert to numpy format
             data[:, 1:] = old_data  # Assign the old data
-            data[:, 0] = 1 - (old_data[:, 0] + old_data[:, 1]
-                              )  # re-obtain the fraction of the first element
+            data[:, 0] = 1 - (old_data[:, 0] + old_data[:, 1])  # re-obtain the fraction of the first element
             return data
 
         data = recover_a(pd.qhull_data)
@@ -77,8 +76,8 @@ class PlotlyPDPlotter(PDPlotter):
         # Plot the lines
         x_list, y_list, z_list = [], [], []
         for x, y in lines:
-            x_list.extend(tuple(x) + (None, ))
-            y_list.extend(tuple(y) + (None, ))
+            x_list.extend(tuple(x) + (None,))
+            y_list.extend(tuple(y) + (None,))
 
             entry1 = labels[(x[0], y[0])]
             entry2 = labels[(x[1], y[1])]
@@ -87,16 +86,12 @@ class PlotlyPDPlotter(PDPlotter):
             z_list.extend((form_eng1, form_eng2, None))
 
         # Plot the facet
-        fig.add_scatter3d(x=x_list,
-                          y=y_list,
-                          z=z_list,
-                          mode='lines',
-                          hoverinfo='none')
+        fig.add_scatter3d(x=x_list, y=y_list, z=z_list, mode="lines", hoverinfo="none")
 
         elems = pd.elements
 
         # Find what types of entries do we have
-        all_types = [entry_type(entry, 'Default') for entry in pd.all_entries]
+        all_types = [entry_type(entry, "Default") for entry in pd.all_entries]
         all_types = sorted(list(set(all_types)))
 
         # Plot stable phases
@@ -107,7 +102,7 @@ class PlotlyPDPlotter(PDPlotter):
             form_engs = []
             for coords in sorted(labels.keys(), key=lambda x: -x[1]):
                 entry = labels[coords]
-                if entry_type(entry, 'Default') != etype:
+                if entry_type(entry, "Default") != etype:
                     continue
                 label = entry.name
                 stable_coords.append(coords)
@@ -119,13 +114,7 @@ class PlotlyPDPlotter(PDPlotter):
             if not stable_coords:
                 continue
             x, y = list(zip(*stable_coords))
-            fig.add_scatter3d(x=x,
-                              y=y,
-                              z=form_engs,
-                              text=stable_text,
-                              name=f'Stable ({etype})',
-                              mode='markers+text',
-                              marker_size=5)
+            fig.add_scatter3d(x=x, y=y, z=form_engs, text=stable_text, name=f"Stable ({etype})", mode="markers+text", marker_size=5)
         # Plot the unstable phases
         if self.show_unstable:
             for etype in all_types:
@@ -136,7 +125,7 @@ class PlotlyPDPlotter(PDPlotter):
                 form_engs = []
                 for entry, coords in unstable.items():
                     # Only plot this type, and skip those that are stable
-                    if entry_type(entry, 'Unstable') != etype:
+                    if entry_type(entry, "Unstable") != etype:
                         continue
                     ehull = pd.get_e_above_hull(entry)
                     if ehull > self.show_unstable:
@@ -154,19 +143,21 @@ class PlotlyPDPlotter(PDPlotter):
                     z=form_engs,
                     text=unstable_text,
                     customdata=np.array([unstable_name]).T,
-                    name=f'Unstable ({etype})',
-                    mode='markers',
-                    hovertemplate='%{text} - %{customdata[0]}',
+                    name=f"Unstable ({etype})",
+                    mode="markers",
+                    hovertemplate="%{text} - %{customdata[0]}",
                     marker_size=2,
                 )
 
-        pname = '-'.join(map(lambda x: x.name, elems))
-        fig.update_layout({
-            'title': f'Ternary plot for {pname}',
-            'autosize': False,
-            'height': 600,
-            'width': 800,
-        })
+        pname = "-".join(map(lambda x: x.name, elems))
+        fig.update_layout(
+            {
+                "title": f"Ternary plot for {pname}",
+                "autosize": False,
+                "height": 600,
+                "width": 800,
+            }
+        )
         return fig
 
     def _get_2d_ternary_plot(self):  # pylint: disable=too-many-statement,too-many-branches
@@ -183,21 +174,17 @@ class PlotlyPDPlotter(PDPlotter):
         a_list, b_list, c_list = [], [], []
         for startfinish in lines:
             a, b, c = list(zip(*startfinish))
-            a_list.extend(a + (None, ))
-            b_list.extend(b + (None, ))
-            c_list.extend(c + (None, ))
+            a_list.extend(a + (None,))
+            b_list.extend(b + (None,))
+            c_list.extend(c + (None,))
 
         # Plot the facet
-        fig.add_scatterternary(a=a_list,
-                               b=b_list,
-                               c=c_list,
-                               mode='lines',
-                               hoverinfo='none')
+        fig.add_scatterternary(a=a_list, b=b_list, c=c_list, mode="lines", hoverinfo="none")
 
         elems = pd.elements
 
         # Find what types of entries do we have
-        all_types = [entry_type(entry, 'Default') for entry in pd.all_entries]
+        all_types = [entry_type(entry, "Default") for entry in pd.all_entries]
         all_types = sorted(list(set(all_types)))
 
         # plot the stable phases for each type
@@ -208,7 +195,7 @@ class PlotlyPDPlotter(PDPlotter):
             stable_name = []
             for coords in sorted(labels.keys(), key=lambda x: -x[1]):
                 entry = labels[coords]
-                if entry_type(entry, 'Default') != etype:
+                if entry_type(entry, "Default") != etype:
                     continue
                 label = entry.name
                 stable_coords.append(coords)
@@ -222,13 +209,13 @@ class PlotlyPDPlotter(PDPlotter):
                 b=b,
                 c=c,
                 text=stable_text,
-                marker_symbol='circle',
-                name=f'Stable ({etype})',
-                mode='markers+text',
+                marker_symbol="circle",
+                name=f"Stable ({etype})",
+                mode="markers+text",
                 customdata=np.array([stable_name]).T,
-                hovertemplate=
-                f'{aname}: %{{a:.2f}} {bname}: %{{b:.2f}} {cname}: %{{c:.2f}}<br>name: %{{customdata[0]}}',
-                cliponaxis=False)
+                hovertemplate=f"{aname}: %{{a:.2f}} {bname}: %{{b:.2f}} {cname}: %{{c:.2f}}<br>name: %{{customdata[0]}}",
+                cliponaxis=False,
+            )
 
         # Plot the unstable phases
         if self.show_unstable:
@@ -249,12 +236,11 @@ class PlotlyPDPlotter(PDPlotter):
                 unstable_name = []
                 dist2hull = []
                 nsamples = len(unstable)
-                scatter_mode = 'markers' if nsamples > 10 else 'markers+text'
+                scatter_mode = "markers" if nsamples > 10 else "markers+text"
                 # Scan through the most stable entry for each composition
                 for entry, coords, ehull in comps.values():
                     # Only plot this type, and skip those that are stable
-                    if entry_type(entry, 'Unstable'
-                                  ) != etype or entry.name in all_stable_names:
+                    if entry_type(entry, "Unstable") != etype or entry.name in all_stable_names:
                         continue
                     if ehull > self.show_unstable:
                         continue
@@ -270,49 +256,47 @@ class PlotlyPDPlotter(PDPlotter):
                     a=a,
                     b=b,
                     c=c,
-                    marker_symbol='triangle-up',
+                    marker_symbol="triangle-up",
                     marker_color=dist2hull,
-                    #marker_colorbar={'title': 'Dist. to hull'},
+                    # marker_colorbar={'title': 'Dist. to hull'},
                     text=unstable_text,
-                    name=f'Unstable ({etype})',
+                    name=f"Unstable ({etype})",
                     mode=scatter_mode,
                     customdata=np.array([unstable_name, dist2hull]).T,
-                    hovertemplate=
-                    f'{aname}: %{{a:.2f}} {bname}: %{{b:.2f}} {cname}: %{{c:.2f}}<br>name: %{{customdata[0]}}<br>above_hull %{{customdata[1]:.4f}} eV',
-                    cliponaxis=False)
+                    hovertemplate=f"{aname}: %{{a:.2f}} {bname}: %{{b:.2f}} {cname}: %{{c:.2f}}<br>name: %{{customdata[0]}}<br>above_hull %{{customdata[1]:.4f}} eV",
+                    cliponaxis=False,
+                )
 
         # Plot the end produced
-        fig.update_layout({
-            'title': f'Ternary plot for {aname}-{bname}-{cname}',
-            'ternary': {
-                'sum': 1,
-                'aaxis': make_axis(elems[0].name, 0),
-                'baxis': make_axis(elems[1].name, 45),
-                'caxis': make_axis(elems[2].name, -45)
-            },
-            'autosize': False,
-            'height': 600,
-            'width': 800,
-        })
+        fig.update_layout(
+            {
+                "title": f"Ternary plot for {aname}-{bname}-{cname}",
+                "ternary": {
+                    "sum": 1,
+                    "aaxis": make_axis(elems[0].name, 0),
+                    "baxis": make_axis(elems[1].name, 45),
+                    "caxis": make_axis(elems[2].name, -45),
+                },
+                "autosize": False,
+                "height": 600,
+                "width": 800,
+            }
+        )
 
         return fig
 
 
 def make_axis(title, tickangle):
     return {
-        'title': title,
-        'titlefont': {
-            'size': 20
-        },
-        'tickangle': tickangle,
-        'showticklabels': False,
-        'tickfont': {
-            'size': 15
-        },
-        'tickcolor': 'rgba(0,0,0,0)',
-        'ticklen': 5,
-        'showline': False,
-        'showgrid': True
+        "title": title,
+        "titlefont": {"size": 20},
+        "tickangle": tickangle,
+        "showticklabels": False,
+        "tickfont": {"size": 15},
+        "tickcolor": "rgba(0,0,0,0)",
+        "ticklen": 5,
+        "showline": False,
+        "showgrid": True,
     }
 
 
@@ -320,11 +304,11 @@ def entry_type(entry, default):
     """Return the type of and entry"""
     if entry.attribute is None:
         return default
-    return entry.attribute.get('entry_type', default)
+    return entry.attribute.get("entry_type", default)
 
 
-def entry_name(entry, default='None'):
+def entry_name(entry, default="None"):
     """Return the type of and entry"""
     if entry.attribute is None:
         return default
-    return entry.attribute.get('struct_name', default)
+    return entry.attribute.get("struct_name", default)

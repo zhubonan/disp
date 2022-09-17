@@ -15,9 +15,9 @@ A minimum separation of 1.5 A is enforced when generating the structure.
     %BLOCK LATTICE_CART
     2 0 0
     0 2 0
-    0 0 2 
+    0 0 2
     %ENDBLOCK LATTICE_CART
-    
+
     %BLOCK POSITIONS_FRAC
     Al 0.0 0.0 0.0 # Al1 % NUM=8
     %ENDBLOCK POSITIONS_FRAC
@@ -26,7 +26,7 @@ A minimum separation of 1.5 A is enforced when generating the structure.
     ```
 
 Note that there is a only a single entry in the `POSITIONS_FRAC` block with `NUM=8`.
-This syntex allows the volume of the cell to be scaled automatically - the *apparent* volume is for the *apparent* number of atoms in the `POSITIONS_FRAC` block. 
+This syntex allows the volume of the cell to be scaled automatically - the *apparent* volume is for the *apparent* number of atoms in the `POSITIONS_FRAC` block.
 To search a 16-atom cell, simply change `NUM=8` to `NUM=16`.
 
 The pair potential infromation is stored in the `Al.pp` file.
@@ -44,8 +44,8 @@ The pair potential infromation is stored in the `Al.pp` file.
     1
     ```
 
-The 12 and 6 in the first line are the exponentials, making this a Lennard-Jones potentials, 
-followed by the cut off distance in the unit of *sigma*.  
+The 12 and 6 in the first line are the exponentials, making this a Lennard-Jones potentials,
+followed by the cut off distance in the unit of *sigma*.
 The potential is shifted so that the energy is zero at the cut off radius (see [here](https://en.wikipedia.org/wiki/Lennard-Jones_potential)).
 
 You should be able to launch a search with:
@@ -90,10 +90,10 @@ The space group of each structure is shown in the seventh column, in the output 
 So far we are just using the scripts in the AIRSS package itself.
 
 
-## Using DISP 
+## Using DISP
 
 Let's now use DISP as the search runner.
-You should have a MongDB instance running some where, and have updated its information in both `disp_db.yaml` and `my_launchpad.yaml`. 
+You should have a MongDB instance running some where, and have updated its information in both `disp_db.yaml` and `my_launchpad.yaml`.
 The default in these two files is to connect to a instance hosted locally.
 
 ??? note "Using MongoDB locally"
@@ -101,7 +101,7 @@ The default in these two files is to connect to a instance hosted locally.
     If you are on Linux, you can use docker to quickly launch an mongodb:
     ```
     sudo service docker start
-    sudo docker run -d -p 27017:27017 mongo:4.4.9  
+    sudo docker run -d -p 27017:27017 mongo:4.4.9
     ```
     to shutdown the service:
     ```
@@ -114,12 +114,12 @@ The default in these two files is to connect to a instance hosted locally.
     will stop the container.
 
 !!! note
-   
+
     Test the fireworks setup with `lpad get_fws` - it should return `[]` for a fresh database.
     For a completely blank database, you need to run `lpad reset` to initialise it for fireworks.
 
 
-First, check the status with `disp check database`. 
+First, check the status with `disp check database`.
 This should print something like:
 
 ```
@@ -137,21 +137,21 @@ Total number of SHELX entries: XXXX
 The last line indicates that the database is successfully connected.
 
 !!! note
-   
+
     Test the fireworks setup with `lpad get_fws` - it should return `[]` for a fresh database.
     For a completely blank database, you need to run `lpad reset` to initialise it for fireworks.
 
 
-Now, you can deploy the searches with 
+Now, you can deploy the searches with
 
 ```
-disp deploy search --seed Al --project example/1.1 --code pp3 --num 20 
+disp deploy search --seed Al --project example/1.1 --code pp3 --num 20
 ```
 
 !!! note
 
-    A `--dryrun` tag can be used to dryrun the submission of the jobs. 
-    It also runs `buildcell` locally trying to build the structures and will print the inputs. 
+    A `--dryrun` tag can be used to dryrun the submission of the jobs.
+    It also runs `buildcell` locally trying to build the structures and will print the inputs.
     It is a good practice to check if they are correct before submitting the workload to the remote computer.
 
 Now, the jobs have been submitted to the remote server.
@@ -161,14 +161,14 @@ To run the actual search, using the local computer as a worker:
 
 ```
 export DISP_DB_FILE=$(pwd)/disp_db.yaml
-rlaunch rapidfire 
+rlaunch rapidfire
 ```
 
 The first line is important as it sets the environmental variable so the *worker* knows which database to upload the completed structures to.
 
 In production search using DFT calculations, we need to run `rlaunch` from inside a job script.
 However, because Fireworks does it deal with walltime limits, an extended launcher `trlaunch` should be used instead.
-This way the remaining walltime limit will be taken into consideration. 
+This way the remaining walltime limit will be taken into consideration.
 
 
 Now you can inspect the results with:
@@ -180,9 +180,9 @@ disp db summary
 which should give an output like the one below:
 
 ```
-              Structure      WF count - search    
+              Structure      WF count - search
                     RES Init         COMPLETED ALL
-project  seed                                     
+project  seed
 test-1-1 Al          20   20                20  20
 ```
 
@@ -201,4 +201,4 @@ The [online airss documentation](https://airss-docs.github.io/tutorials/examples
 
 !!! note
 
-    Search for isolated clusters is not currently supported by DISP. 
+    Search for isolated clusters is not currently supported by DISP.

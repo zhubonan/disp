@@ -1,8 +1,9 @@
 """
 Utility Module - contains useful routines
 """
-import re
 import io
+import re
+
 import numpy as np
 
 
@@ -65,7 +66,7 @@ def filter_out_stream(stream, start, end):
     return out_stream
 
 
-def calc_kpt_tuple_recip(structure, mp_spacing=0.05, rounding='up'):
+def calc_kpt_tuple_recip(structure, mp_spacing=0.05, rounding="up"):
     """Calculate reciprocal-space sampling with real-space parameter"""
 
     # Get reciprocal lattice vectors with pymatgen. Note that pymatgen does include
@@ -78,8 +79,8 @@ def calc_kpt_tuple_recip(structure, mp_spacing=0.05, rounding='up'):
     k_samples = abc_recip / mp_spacing
 
     # Rounding
-    if rounding == 'up':
+    if rounding == "up":
         k_samples = np.ceil(k_samples)
     else:
         k_samples = np.floor(k_samples + 0.5)
-    return tuple((int(x) for x in k_samples))
+    return tuple(int(x) for x in k_samples)

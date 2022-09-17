@@ -30,4 +30,3 @@ trlaunch = "disp.cli.trlaunch:trlaunch"
 
 [project.urls]
 Home = "https://github.com/zhubonan/disp"
-

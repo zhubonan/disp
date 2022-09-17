@@ -71,11 +71,11 @@ The content of this file is shown below.
     %ENDBLOCK EXTERNAL_PRESSURE
     ```
 
-An `param` is also generated for default CASTEP inputs. 
+An `param` is also generated for default CASTEP inputs.
 
 ??? example "SrTiO3.param"
 
-    A `param` file CASTEP calculation is generated as well. 
+    A `param` file CASTEP calculation is generated as well.
     ```
         task                 : geometryoptimization
     xc_functional        : PBE
@@ -141,30 +141,30 @@ In addition, the specie-wise minimum separations can be set using the knowledge 
 ##MINSEP=1.8-3.0
 ```
 
-This sets the species-wise minimum separation to be chosen randomly between 1.8 $\unicode{x212B}$ to 3.0 $\unicode{x212B}$. 
+This sets the species-wise minimum separation to be chosen randomly between 1.8 $\unicode{x212B}$ to 3.0 $\unicode{x212B}$.
 
 !!! tip
 
-    One can invoke more knowledge of the system - cation-cation or anion-anion distances are larger than cation-anion distances. Incorporating this in the structure generation process would further improve the efficiency. 
+    One can invoke more knowledge of the system - cation-cation or anion-anion distances are larger than cation-anion distances. Incorporating this in the structure generation process would further improve the efficiency.
 
 We can now deploy our search with:
 
 ```
-disp deploy search --project example/sto/gulp --seed SrTiO3 --code gulp --num 200 
+disp deploy search --project example/sto/gulp --seed SrTiO3 --code gulp --num 200
 ```
 
 To run locally
 
 ```
 export DISP_DB_FILE=$(pwd)/disp_db.yaml
-rlaunch rapidfire 
+rlaunch rapidfire
 disp db retrieve-project --project example/sto/gulp
 ```
 
 Example output:
 
 ```
-cat *.res | cryan -u 0.1 -r -t  
+cat *.res | cryan -u 0.1 -r -t
 SrTiO3-2*57-e185f4       0.00    61.004    -149.364    3 TiSrO3       Pm-3m          6
 SrTiO3-2*37-9915e8       0.00   103.123       0.369    4 TiSrO3       Cmme           1
 SrTiO3-2*02-d20277       0.00    85.448       0.399    2 TiSrO3       P21/m          4
@@ -233,7 +233,7 @@ While continuing the search may allow the true ground state to be found, one can
 !!! note
 
     Perovskites are known to have many distorted phases with octahedral.
-    The P4mm phase obtained is non-central symmetric and has been reported in the literature as well[^1]. 
+    The P4mm phase obtained is non-central symmetric and has been reported in the literature as well[^1].
     Using the cubic phases as the high symmetry starting structure, one can also determine the ground state by mode mapping[^2].
 
 
@@ -281,26 +281,26 @@ First, create the `SrTiO3-refine.cell` and `SrTiO3-refine.param` with revised pa
 
 Where the `SPECIES_POT` is changed from `QC5` to `C19`.
 The latter is a library with more accurate pseudopotentials ([delta = 0.4 meV](https://molmod.ugent.be/deltacodesdft)).
-In addition, the spaces of generated kpoints is requested to be at most $0.05 2\pi \unicode{x212B}^{-1}$ for improved sampling of the reciprocal space. 
+In addition, the spaces of generated kpoints is requested to be at most $0.05 2\pi \unicode{x212B}^{-1}$ for improved sampling of the reciprocal space.
 
 !!! example "SrTiO3-refine.param"
 
     ```
     task                 : geometryoptimization
-    xc_functional        : PBE 
-    spin_polarized       : false 
-    fix_occupancy        : false 
-    metals_method        : dm 
-    mixing_scheme        : pulay 
-    max_scf_cycles       : 1000 
+    xc_functional        : PBE
+    spin_polarized       : false
+    fix_occupancy        : false
+    metals_method        : dm
+    mixing_scheme        : pulay
+    max_scf_cycles       : 1000
     cut_off_energy       : 700 eV
-    opt_strategy         : speed 
-    page_wvfns           : 0 
-    num_dump_cycles      : 0 
-    backup_interval      : 0 
-    geom_method          : LBFGS 
-    geom_max_iter        : 100 
-    mix_history_length   : 20 
+    opt_strategy         : speed
+    page_wvfns           : 0
+    num_dump_cycles      : 0
+    backup_interval      : 0
+    geom_method          : LBFGS
+    geom_max_iter        : 100
+    mix_history_length   : 20
     finite_basis_corr    : auto
     fixed_npw            : false
     write_cell_structure : true
@@ -317,7 +317,7 @@ In addition, the spaces of generated kpoints is requested to be at most $0.05 2\
 In the `param` file, the plane-wave cut off energy is raised to `700 eV`.
 
 !!! note "Constant basis quality relaxation"
-    
+
     In this example, the `fixed_npw` is turned off so the variable cell relaxation will be performed under constant cut-off energy (quality) mode, and `finite_basis_corr` is turned on to allow the Pulay stress to be correct automatically.
     Otherwise, the basis set would change with unit cell, hence the effective cut off energy can be different from that initially supplied.
     This means that the final energy is always consistent with the geometry, and there is no need to perform an additional singlepoint calculation as in constant-basis mode, e.g. `fixed_npw : true`.
@@ -377,8 +377,8 @@ $ tar -axf sto-res-dft.tar.gz -O | grep  Total | awk 'BEGIN{x=0}{x+=$4}END{print
 6945.92
 ```
 
-A total of about 7000 core hours has been consumed. 
-There are 24 cores per node, so this is equivalent to roughly 12 node days, 
+A total of about 7000 core hours has been consumed.
+There are 24 cores per node, so this is equivalent to roughly 12 node days,
 or having 12 such nodes working for a single day.
 
 Savings can be made by running the searches with only 4 cores per *worker*, and six of such workers can be placed on a node with 24 cores.
@@ -389,8 +389,8 @@ $ tar -axf sto-res-dft-4c.tar.gz -O | grep  Total | awk 'BEGIN{x=0}{x+=$4}END{pr
 ```
 
 In this case, the estimated time for getting 200 relaxed structure is about 4000 core hours - a 43 % save in the computational resources by replacing 24-way MPI (24 cores) with 4-way MPI (cores) for performing relaxation!
-Even with a 10 % uncertainty due to the limited size and stochastic nature of the search, this is still a significant save to make. 
+Even with a 10 % uncertainty due to the limited size and stochastic nature of the search, this is still a significant save to make.
 
 Nevertheless, running with more workers each using fewer cores means that each relaxation would take longer time to complete, giving a reduced turn around rate.
-This may result in increased time-to-solution for small-scale searching more difficult relaxation can take much longer to finish. 
-For a search involving thousands of trials, the optimum strategy is to use low core counts first, and finish off the search with workers with increased cores counts. 
+This may result in increased time-to-solution for small-scale searching more difficult relaxation can take much longer to finish.
+For a search involving thousands of trials, the optimum strategy is to use low core counts first, and finish off the search with workers with increased cores counts.

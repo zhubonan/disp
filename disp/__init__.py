@@ -4,14 +4,13 @@ DISP - DIstributed Structure Prediction
 import logging
 from logging.handlers import WatchedFileHandler
 
-__version__ = '1.0.0'
+__version__ = "1.0.0"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Formatter
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 # Console handler
 console_handler = logging.StreamHandler()
@@ -41,5 +40,3 @@ def setlogfile(filename, level=logging.INFO):
     watched_file = WatchedFileHandler(filename)
     watched_file.setFormatter(formatter)
     logger.addHandler(watched_file)
-
-

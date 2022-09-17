@@ -1,13 +1,13 @@
 """
 Utility module
 """
-from pathlib import Path
-from contextlib import contextmanager
-import tempfile
 import os
 import shutil
+import tempfile
+from contextlib import contextmanager
+from pathlib import Path
 
-DATASTORE_NAME = 'airss-datastore'
+DATASTORE_NAME = "airss-datastore"
 
 
 class FWPathManager:
@@ -27,6 +27,7 @@ class FWPathManager:
     it. If FW_CONFIG_FILE is not set, or it points to $USER/.fireworks,
     BASE_PATH defaults to $HOME/disp-base.
     """
+
     def __init__(self, base_path=None):
         """Instantiate a FWPathManager"""
         self.base_path = None
@@ -36,10 +37,10 @@ class FWPathManager:
     def _set_base_path(self, base_path):
         """Return the base directory for storing AIRSS related file data"""
         if base_path is None:
-            fw_config = os.environ.get('FW_CONFIG_FILE')
-            user = os.environ.get('USER')
-            if not fw_config or f'{user}/.fireworks' in fw_config:
-                base_path = Path.home() / 'disp-base'
+            fw_config = os.environ.get("FW_CONFIG_FILE")
+            user = os.environ.get("USER")
+            if not fw_config or f"{user}/.fireworks" in fw_config:
+                base_path = Path.home() / "disp-base"
             else:
                 base_path = Path(fw_config).parent.parent
         else:
@@ -66,7 +67,7 @@ class FWPathManager:
         return project_path
 
     def __repr__(self):
-        return f'FWPathManager(base_path={self.base_path})'
+        return f"FWPathManager(base_path={self.base_path})"
 
 
 @contextmanager

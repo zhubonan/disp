@@ -40,8 +40,8 @@ stateDiagram-v2
     INSUFFICIENT_TIME --> READY
     RELAX_TIMEDOUT --> READY
     COMPLETED --> DB_UPLOAD
-    
+
     COMPLETED --> [*]
     RELAX_ERRORED --> [*]
-    DB_UPLOAD --> [*]        
+    DB_UPLOAD --> [*]
 ```

@@ -4,7 +4,7 @@ Tools for visualisting SCF convergence
 
 import re
 
-pattern_time = r'''
+pattern_time = r"""
 ^\ +
 ([0-9]+)                      # Loop number
 \ +
@@ -18,18 +18,19 @@ pattern_time = r'''
 \ +
 <--\ SCF
 $
-'''
+"""
 
 sfc_line = re.compile(pattern_time, re.VERBOSE)
 
 
 class SCFInfo:
     """Class for storing an extracting information of SCF convergence"""
+
     def __init__(self, seed):
         """Construct an SCFInfo object given the name of the seed"""
         self.new_cycles = None
         self.scf_data = None
-        self.fh = open(seed + '.castep')
+        self.fh = open(seed + ".castep")
         self.parse()
 
     def __len__(self):
@@ -59,11 +60,7 @@ class SCFInfo:
                 break_points.append(i)
             last = num
 
-        self.scf_data = dict(loop=loops,
-                             eng=engs,
-                             fermi=fermis,
-                             gain=gains,
-                             time=timers)
+        self.scf_data = dict(loop=loops, eng=engs, fermi=fermis, gain=gains, time=timers)
         self.new_cycles = break_points
 
     def get_converge_data(self, scf_no):
@@ -94,29 +91,22 @@ class SCFInfo:
 
         import matplotlib.pyplot as plt
         import numpy as np
+
         data = self.get_converge_data(scf_no)
 
-        if name == 'duration':
-            times = data['time']
+        if name == "duration":
+            times = data["time"]
             dura = np.diff(times)
-            plt.plot(data['loop'][:-1],
-                     dura,
-                     label='SCF loop {}'.format(scf_no),
-                     *pltargs,
-                     **pltkwargs)
+            plt.plot(data["loop"][:-1], dura, label=f"SCF loop {scf_no}", *pltargs, **pltkwargs)
         else:
-            plt.plot(data['loop'],
-                     data[name],
-                     label='SCF loop {}'.format(scf_no),
-                     *pltargs,
-                     **pltkwargs)
+            plt.plot(data["loop"], data[name], label=f"SCF loop {scf_no}", *pltargs, **pltkwargs)
 
         # Set up axis labels
-        plt.xlabel('SCF Loops')
-        if name in ['eng', 'fermi', 'gain']:
-            plt.ylabel('Energy /eV')
-        elif name in ['time', 'duration']:
-            plt.ylabel('Seconds')
-        plt.title('{} against SCF cycles'.format(name))
+        plt.xlabel("SCF Loops")
+        if name in ["eng", "fermi", "gain"]:
+            plt.ylabel("Energy /eV")
+        elif name in ["time", "duration"]:
+            plt.ylabel("Seconds")
+        plt.title(f"{name} against SCF cycles")
         plt.legend()
         plt.show()
