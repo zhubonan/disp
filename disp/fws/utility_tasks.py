@@ -63,13 +63,27 @@ class USPCopyTask(FiretaskBase):
         """
         Run the task
         """
-        # Find a list of required potential files
         pots = set()
-        for cell_file in Path().glob("*.cell"):
-            content = cell_file.read_text()
+
+        def gather_pots(content, pots):
             for line in content.split("\n"):
                 if ".usp" in line or ".recpot" in line or ".upf" in line:
                     pots.add(line.split()[-1])
+
+        # Find a list of required potential files in the current working directory
+        for cell_file in Path().glob("*.cell"):
+            content = cell_file.read_text()
+            gather_pots(content, pots)
+
+        # Check the structure content in the spec that is yet to be written to the disk
+        if "struct_content" in fw_spec:
+            content = fw_spec["struct_content"]
+            gather_pots(content, pots)
+
+        # Check the seed content in the spec that is yet to be written to the disk
+        if "seed_content" in fw_spec:
+            content = fw_spec["seed_content"]
+            gather_pots(content, pots)
 
         # No copying is needed
         if not pots:
