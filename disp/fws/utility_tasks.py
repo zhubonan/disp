@@ -7,6 +7,7 @@ from gzip import GzipFile
 from pathlib import Path
 
 from fireworks import FiretaskBase, explicit_serialize
+from fireworks.utilities.fw_utilities import get_fw_logger
 
 
 @explicit_serialize
@@ -56,6 +57,8 @@ class CleanDir(FiretaskBase):
 class USPCopyTask(FiretaskBase):
     """Task for copying any USP files into the working directory"""
 
+    logger = get_fw_logger(__name__, l_dir=None, stream_level="INFO")
+
     def run_task(self, fw_spec=None):
         """
         Run the task
@@ -70,7 +73,9 @@ class USPCopyTask(FiretaskBase):
 
         # No copying is needed
         if not pots:
+            self.logger.info("No required potential files")
             return
+        self.logger.info("Looking for potential files: {pots}")
 
         # Copy from the POSPOT directory
         pspot = fw_spec.get("_fw_env", {}).get("PSPOT_DIR")
@@ -79,15 +84,18 @@ class USPCopyTask(FiretaskBase):
             pspot = os.environ.get("PSPOT_DIR")
             if pspot is None:
                 raise RuntimeError("PSPOT must be defined for file-based pseudpotentials to work!")
+            self.logger.info(f"PSPOT_DIR already exists: {pspot}")
             # Nothing to do as CASTEP will consult PSPOT_DIR itself
             return
+        self.logger.info(f"PSPOT_DIR from worker environment: {pspot}")
 
         pspot = Path(pspot)
         # Copy the potential file to the current folder
         for potname in pots:
             if not (pspot / potname).is_file():
                 raise RuntimeError("Missing file {potname} from the potential directory {pspot}")
-            shutil.copy2(str(pspot / potname), str(Path(potname)))
+            shutil.copy2(str(pspot / potname), potname)
+            self.logger.info(f"Copied potential file: {potname}")
 
 
 def gzip_dir(path, compresslevel=6):
