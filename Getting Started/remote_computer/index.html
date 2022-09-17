@@ -707,7 +707,7 @@
 In most cases, the process is similar to that of installation on the local computer.
 It is recommanded that you install all packages in a <a href="https://docs.conda.io/en/latest/">conda environment</a>, rather than relying on system-wide installed python environment.</p>
 <h2 id="installation-using-conda-environment-manager">Installation using <code>conda</code> environment manager</h2>
-<p>For computing clusters and supercomputers, the default <code>HOME</code> folder of user may not be mounted on the computer nodes. 
+<p>For computing clusters and supercomputers, the default <code>HOME</code> folder of user may not be mounted on the computer nodes.
 If that if the case, you can install <a href="https://docs.conda.io/en/latest/miniconda.html">miniconda3</a> onto the work/scratch partition and use a activation script to enable the environment.</p>
 <p>Example activation script:</p>
 <div class="highlight"><pre><span></span><code>. /work/xxx/&lt;username&gt;/miniconda3/etc/profile.d/conda.sh
@@ -767,9 +767,9 @@ else
         echo &quot;Server cannot be reached - job terminated&quot;
 fi
 </code></pre></div>
-<p>In this example, each compute node has 128 CPUs and we want to run four 32-core CASTEP jobs concurrent for relaxing the structure. 
+<p>In this example, each compute node has 128 CPUs and we want to run four 32-core CASTEP jobs concurrent for relaxing the structure.
 This is achieve by the line below:</p>
-<div class="highlight"><pre><span></span><code>CMD=&quot;trlaunch -l ${WORK_DIR}/disp-base/config/my_launchpad.yaml -w ./fworker-32-core.yaml multi 4 --timeout 86000 --local_redirect&quot; 
+<div class="highlight"><pre><span></span><code>CMD=&quot;trlaunch -l ${WORK_DIR}/disp-base/config/my_launchpad.yaml -w ./fworker-32-core.yaml multi 4 --timeout 86000 --local_redirect&quot;
 </code></pre></div>
 <p>which runs 4 concurrent workers, each using 32 CPUs.
 The workers will run indefinitely until the timeout has passed, or when there is no jobs in the server to be picked up.
@@ -789,12 +789,12 @@ env:
     # Use non-login shell for running
 </code></pre></div>
 <p>The <code>env</code> section contains directive specific for this worker.
-The <code>castep_codes</code> contains a dictionary of code alias and the full command to be used for launching CASTEP. 
+The <code>castep_codes</code> contains a dictionary of code alias and the full command to be used for launching CASTEP.
 It the requesteed code is not found in this section, the default <code>castep.mpi</code> (from <code>$PATH</code>) will be used with prefix from <code>MPI_LAUNCH_CMD</code> used.
 The <code>category</code> allows controling the placement of workload.
 Each search can be associated with one or more categories, and only those <em>worker</em> with matching category will pull the job to run.
 For example, those with small unit cells can be run with few number of MPI processes (to improve the overall throughput).</p>
-<p>In this example, advanced <em>job step</em> capability of the SLURM scheduler is used to run many smaller jobs inside a single job, using the <code>srun</code> MPI launcher. 
+<p>In this example, advanced <em>job step</em> capability of the SLURM scheduler is used to run many smaller jobs inside a single job, using the <code>srun</code> MPI launcher.
 Care should be taken to verify the CPU resources are indeed allocated in the correct way.</p>
 <h2 id="further-reading">Further reading</h2>
 

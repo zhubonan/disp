@@ -667,7 +667,7 @@ For demostration and testing, a local MongoDB instance can be launched.
 Docker is recommanded for running such temporary test database.</p>
 <div class="admonition example">
 <p class="admonition-title">Run mongodb using docker</p>
-<div class="highlight"><pre><span></span><code>sudo docker run -d -p 27017:27017 --name MONGO_CONTAINER mongo:4.4.9     
+<div class="highlight"><pre><span></span><code>sudo docker run -d -p 27017:27017 --name MONGO_CONTAINER mongo:4.4.9
 </code></pre></div>
 </div>
 <p>The standard way to access MongoDB is to use the mongo shell.
@@ -677,9 +677,9 @@ But using a GUI tool can also be very helpful, such as <a href="https://robomong
 <div class="highlight"><pre><span></span><code>sudo docker exec -it MONGO_CONTAINER mongo
 </code></pre></div>
 </div>
-<p>For DISP to work, it needs to know how to connect to your database. 
+<p>For DISP to work, it needs to know how to connect to your database.
 The configurations are stored in two files, <code>my_launchpad.yaml</code> and <code>disp_db.yaml</code>.
-The former is used by the fireworks workflow engine, and the latter is used by DISP itself for accessing 
+The former is used by the fireworks workflow engine, and the latter is used by DISP itself for accessing
 the data.
 In theory, you can have them poiting to difference servers, but it is not yet supported - make sure they have identical <code>host</code>, and <code>name</code>  and <code>database</code> should be the same as well.</p>
 <p>The first one should look like:</p>
@@ -708,9 +708,9 @@ password: null
 <p class="admonition-title">Note</p>
 <p>If these two files exists at the current working directory, they will be used by default.</p>
 </div>
-<p>For convenience, it is better to use environmental variable to select these files. 
+<p>For convenience, it is better to use environmental variable to select these files.
 The <code>DISP_DB_FILE</code> should be set and point to the location of the <code>disp_db.yaml</code> file.</p>
-<p>The location of the <code>my_launchpad.yaml</code> should is set in a file called <code>FW_config.yaml</code>, 
+<p>The location of the <code>my_launchpad.yaml</code> should is set in a file called <code>FW_config.yaml</code>,
 which is a configuration files used for Fireworks.
 On the remote compute, it is recommand to have a certain folder structure like below:</p>
 <div class="highlight"><pre><span></span><code>      &lt;BASE_PATH&gt;

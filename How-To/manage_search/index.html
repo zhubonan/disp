@@ -748,12 +748,12 @@
 <h2 id="monitor-throughput">Monitor throughput</h2>
 <p>The easiest way to see how the search is going is to use the <code>disp db throughput</code> command.
 It will show a bar chart of the number of new structure per hour, and it is possible to controll what the counts are grouped with</p>
-<div class="highlight"><pre><span></span><code>disp db throughput  -g worker_name 
+<div class="highlight"><pre><span></span><code>disp db throughput  -g worker_name
 </code></pre></div>
 <p><img alt="output of &quot;disp db throughput&quot;" src="../../img/throughput.png" style="width:450px" /></p>
 <h2 id="check-progress">Check progress</h2>
-<p>Use <code>disp db summary --project &lt;project_name&gt;</code> to check how many structure has been relaxed for the particular project(s). 
-The <code>&lt;project_name&gt;</code> field is an regular expression to be used for matching. 
+<p>Use <code>disp db summary --project &lt;project_name&gt;</code> to check how many structure has been relaxed for the particular project(s).
+The <code>&lt;project_name&gt;</code> field is an regular expression to be used for matching.
 It is also possible to use <code>--seed</code> to further select certain seed names.</p>
 <p>In addition, to the number of structure generated, it will also show how many workflows for each seed has been completed or ready to run.</p>
 <details class="example" open="open">
@@ -788,10 +788,10 @@ The following command can be used to change the priority of project <code>catdis
 <h2 id="cancel-searches">Cancel searches</h2>
 <p>A search can be cancelled/paused by defuse/pause relavant tasks.
 This may be achieved with the <code>lpad</code> interface.</p>
-<div class="highlight"><pre><span></span><code>lpad defuse_fws -q &#39;{&quot;spec.project_name&quot;: &quot;catdisc/LFP&quot;, &quot;state&quot;:&quot;READY&quot;} 
+<div class="highlight"><pre><span></span><code>lpad defuse_fws -q &#39;{&quot;spec.project_name&quot;: &quot;catdisc/LFP&quot;, &quot;state&quot;:&quot;READY&quot;}
 </code></pre></div>
-<p>and </p>
-<div class="highlight"><pre><span></span><code>lpad pause_fws -q &#39;{&quot;spec.project_name&quot;: &quot;catdisc/LFP&quot;, &quot;state&quot;:&quot;READY&quot;} 
+<p>and</p>
+<div class="highlight"><pre><span></span><code>lpad pause_fws -q &#39;{&quot;spec.project_name&quot;: &quot;catdisc/LFP&quot;, &quot;state&quot;:&quot;READY&quot;}
 </code></pre></div>
 <p>for pausing jobs.</p>
 <div class="admonition note">
@@ -803,12 +803,12 @@ A modified version of <code>fireworks</code> can be used to include process repo
 <p>CASTEP relaxations are usually fairly robust and you should not see consistent DFT errors.
 Due to the nature of the random structure, it is not rare that certain relaxation would errors.
 Since it is <em>random</em> sampling, having <em>randomly</em> failed calculation should not affect the results.</p>
-<p>However, in some cases, especially systems with spin-polarisation and requires Hubbard U correction, CASTEP may struggle to converge the electronic structure for ill-form input structures. 
+<p>However, in some cases, especially systems with spin-polarisation and requires Hubbard U correction, CASTEP may struggle to converge the electronic structure for ill-form input structures.
 You will see that the number of relaxed structure being much fewer than that of the initial structures, despite relaxation workflow being in the "COMPLETED" states, which is for the purpose of workflow management only.</p>
-<p>To access the actual relaxation output, one has to dig into the <em>stored_data</em> of the associated <em>launch</em>, 
+<p>To access the actual relaxation output, one has to dig into the <em>stored_data</em> of the associated <em>launch</em>,
 then check the launch directory of those in the <code>ERRORED</code> state.</p>
 <h2 id="lost-runs">Lost runs</h2>
-<p>Due to the server-client architecture of the workflow system. The client may lose content with the server, causing the jobs checked out to be staled. 
+<p>Due to the server-client architecture of the workflow system. The client may lose content with the server, causing the jobs checked out to be staled.
 This is, unfortunately, irrecoverable, and the only solution is to <em>rerun</em> the lost task.</p>
 <p>This can be done with:</p>
 <div class="highlight"><pre><span></span><code>lpad detect_lostruns --rerun
