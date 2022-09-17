@@ -210,7 +210,7 @@ def deploy_search(
     required=False,
     help="Path to a file containing the extra lines to be appended to the cell files sent for relaxation.",
 )
-@click.option("--keep/--no-keep", default=True, help="Keep intermediate files, e.g. do no clean the workding directory.")
+@click.option("--keep/--no-keep", default=False, help="Keep intermediate files, e.g. do no clean the workding directory.")
 @click.option("--dryrun", is_flag=True)
 @click.option(
     "--castep-code", show_default=True, default="default", help="Alias for resolving the CASTEP executable, as define in the worker file."
