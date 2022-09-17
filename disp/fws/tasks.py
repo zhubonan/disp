@@ -945,12 +945,9 @@ class DbRecordTask(FiretaskBase):
     # pylint: disable=attribute-defined-outside-init
     def _init_parameters(self, fw_spec):
         """Initialise the parameters"""
-
-        for key, value in self.default_params.items():
-            if self.get(key) is None:
-                self[key] = value
-        self.db_file = self["db_file"]
-        self.include_param = self["include_param"]
+        self.db_file = DB_FILE
+        self.include_param = False
+        set_attributes(self, fw_spec, self.default_params)
 
     def run_task(self, fw_spec):
         """
