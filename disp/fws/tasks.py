@@ -949,6 +949,12 @@ class DbRecordTask(FiretaskBase):
         self.include_param = False
         set_attributes(self, fw_spec, self.default_params)
 
+        # Check if DB_PATH is in fw_env
+        fw_env = fw_spec.get("_fw_env", {})
+        if "DISP_DB_FILE" in fw_env:
+            self.db_file = fw_env["DISP_DB_FILE"]
+        self.logger.info(f"Using DISP_DB_FILE={self.db_file}")
+
     def run_task(self, fw_spec):
         """
         Save search results to the database
