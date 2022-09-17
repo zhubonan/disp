@@ -4,8 +4,9 @@ Module with definition of Fireworks
 from multiprocessing.sharedctypes import Value
 from fireworks.core.firework import Firework
 
-from .tasks import AirssBuildcellTask, AirssCastepRelaxTask, AirssDataTransferTask, DbRecordTask, AirssModcellTask, AirssGulpRelaxTask, AirssPp3RelaxTask
-from .utility_tasks import GzipDir
+from .tasks import (AirssBuildcellTask, AirssCastepRelaxTask, AirssDataTransferTask, DbRecordTask, AirssModcellTask, AirssGulpRelaxTask, 
+                    AirssPp3RelaxTask, CastepSinglepointTask)
+from .utility_tasks import GzipDir, USPCopyTask, CleanDir
 
 #pylint: disable=too-many-arguments, return-in-init,too-many-locals
 
@@ -94,7 +95,7 @@ class AirssSearchFW(Firework):
         if record_db or spec.get('record_db'):
             spec['record_db'] = True
             spec[
-                '_add_launchpad_and_fw_id'] = True  # Allow the Firework to acess the fw_id
+                '_add_launchpad_and_fw_id'] = True  # Allow the Firework to access the fw_id
             tasks.append(DbRecordTask())
         if gzip_folder or spec.get('gzip_folder'):
             spec['gzip_folder'] = True
@@ -186,6 +187,74 @@ class RelaxFW(Firework):
             tasks.append(GzipDir())
 
         return super(RelaxFW, self).__init__(tasks=tasks,
+                                             spec=spec,
+                                             name=name,
+                                             **kwargs)
+
+class SinglePointFW(Firework):
+    """
+    Perform standard a singlepoint calculation using CASTEP.
+    """
+    def __init__(self,
+                 project_name,
+                 struct_name,
+                 struct_content,
+                 param_content,
+                 executable,
+                 seed_name,
+                 castep_code='default',
+                 record_db=True,
+                 clean_dir=True,
+                 existing_spec=None,
+                 name=None,
+                 code='castep',
+                 walltime_seconds=600,
+                 cluster=False,
+                 **kwargs):
+        """
+        Initialise a SinglePointFW instance
+        """
+
+        tasks = []
+        if existing_spec is None:
+            spec = {}
+        else:
+            spec = dict(existing_spec)
+
+        spec.update({
+            'struct_name': struct_name,
+            'struct_content': struct_content,
+            'project_name': project_name,
+            'seed_name': seed_name,
+            '_walltime_seconds': walltime_seconds
+        })
+
+        if code == 'castep':
+            tasks.append(
+                USPCopyTask()
+            )
+            singlepoint = CastepSinglepointTask(param_content=param_content,
+                                        executable=executable,
+                                        castep_code=castep_code,
+                                        cluster=cluster)
+            tasks.append(singlepoint)
+        else:
+            raise ValueError(f'Unsupported code: {code}')
+
+        if name is None:
+            name = f'Singlepoint-{project_name}/{struct_name}'
+
+        if record_db or spec.get('record_db'):
+            spec['record_db'] = True
+            spec['is_singlepoint'] = True  # Singal that this is a singlepoint calculation
+            spec['_add_launchpad_and_fw_id'] = True  # Allow the Firework to access the fw_id
+            tasks.append(DbRecordTask(res_type='singlepoint', include_param=False))
+
+        if clean_dir or spec.get('clean_dir'):
+            spec['clean_dir'] = True
+            tasks.append(CleanDir())
+
+        return super(SinglePointFW, self).__init__(tasks=tasks,
                                              spec=spec,
                                              name=name,
                                              **kwargs)

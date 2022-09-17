@@ -1,6 +1,7 @@
 """
 Module defining the FIRE tasks for AIRSS operations
 """
+import re
 import tarfile
 import sys
 import os
@@ -41,7 +42,8 @@ class RelaxOutcome(Enum):
 @explicit_serialize
 class AirssValidateTask(FiretaskBase):
     """
-    Task for validating the instuallation of AIRSS
+    Task for validating the installation of the AIRSS code.
+    https://www.mtg.msm.cam.ac.uk/Codes/AIRSS
     """
 
     optional_params = ['additional_exes']
@@ -301,7 +303,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
     ]
     MINIMUM_RUN_TIME = 600
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
-    SHCEUDLER_TIME_OFFSET = 60
+    SCHEDULER_TIME_OFFSET = 60
     PRIORITY_OFFSET = {'insufficient_time': 15, 'continuation': 10}
     shebang = '#!/bin/bash -l'
     run_script_name = 'jobscript.sh'
@@ -429,7 +431,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         self.logger.info(
             f'Only have {rem_cycles} to perform, relaxation terminated')
 
-        # Detete the '-out.cell', otherwise castep2res will pick it up and use it
+        # Delete the '-out.cell', otherwise castep2res will pick it up and use it
         # as the structure
         if os.path.isfile(self.struct_name + '-out.cell'):
             os.remove(self.struct_name + '-out.cell')
@@ -450,7 +452,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         cmd = self._get_cmd()
 
         # Run CASTEP relax, leave one minute for cleaning up
-        actual_timeout = self.timeout - self.SHCEUDLER_TIME_OFFSET
+        actual_timeout = self.timeout - self.SCHEDULER_TIME_OFFSET
         self.logger.info(f'Setting timeout to: {actual_timeout} seconds')
 
         # Check if we have sufficient time for this run, if not we do not do the relaxation
@@ -489,10 +491,10 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
 
             # Do not add new jobs if there are less than 20 cycles
             completed_cycles = castep_geom_count(struct_name + '.castep')
-            remining_cycles = self.cycles - completed_cycles
-            if (self.cycles != 0) and (remining_cycles < 20):
+            reminaing_cycles = self.cycles - completed_cycles
+            if (self.cycles != 0) and (reminaing_cycles < 20):
                 return self._handle_too_few_cycle_left(
-                    rem_cycles=remining_cycles)
+                    rem_cycles=reminaing_cycles)
 
             self.logger.info('Adding continuation fireworks')
             return self._handle_relax_timeout(fw_spec)
@@ -516,7 +518,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         # pylint: disable=cyclic-import, import-outside-toplevel
         from disp.fws.works import RelaxFW
 
-        # We must inlclude the structure, as the restarted firework may be on
+        # We must include the structure, as the restarted firework may be on
         # a different machine...
         struct_content = Path(self.struct_name + '.cell').read_text()
 
@@ -525,7 +527,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         new_spec = filter_spec(fw_spec)
         new_spec['launch_count'] = self.nlaunches
 
-        # Here I set a high prority case of the insufficient_time case
+        # Here I set a high priority case of the insufficient_time case
         # So if I am in a loop, it will get picked up first next time....
         new_spec['_priority'] = self.base_priority + self.PRIORITY_OFFSET[
             'insufficient_time']
@@ -549,7 +551,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
             '_insufficient_time_left': True,
         }
         self.logger.warning(
-            'Insufficent run time detected. This should never happen if the timeout is set properly for the worker....'
+            'Insufficient run time detected. This should never happen if the timeout is set properly for the worker....'
         )
 
         return FWAction(detours=detours, stored_data=stored_data)
@@ -649,7 +651,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         scheduler = Scheduler.get_scheduler()
         self.logger.info(f'Using scheduler interface {scheduler}')
         timeout = scheduler.get_remaining_seconds()
-        self.logger.info(f'Obtained timeout from scheudler {timeout}')
+        self.logger.info(f'Obtained timeout from scheduler {timeout}')
         return timeout
 
     def _save_res(self):  # pylint: disable=no-self-use
@@ -715,7 +717,7 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
 
         self.logger.info(f'Starting CASTEP run with command: {cmd}')
         self._prepare_run_script(cmd, prepend_command, append_command)
-        with transiant_file('.realx_stdout', mode='w+') as tmpout:
+        with transient_file('.realx_stdout', mode='w+') as tmpout:
             try:
                 subprocess.run(f'./{self.run_script_name}',
                                timeout=timeout,
@@ -758,7 +760,7 @@ echo Current PATH: $PATH
         if isinstance(append_command, list):
             append_command = '\n'.join(append_command)
 
-        # If unset - make they an emtpy string
+        # If unset - make they an empty string
         prepend_command = '' if prepend_command is None else prepend_command
         append_command = '' if append_command is None else append_command
 
@@ -783,6 +785,72 @@ echo Current PATH: $PATH
 
 
 @explicit_serialize
+class CastepSinglepointTask(AirssCastepRelaxTask):
+    """
+    Task for running a single point calculation for energy
+    """
+
+    # _fw_name = 'CastepRelaxTask'
+    required_params = ['param_content', 'executable']
+    optional_params = [
+        'minimum_run_time', 'prepend_command', 'append_command', 'castep_code', 'cluster'
+    ]
+    MINIMUM_RUN_TIME = 600
+    SCHEDULER_TIME_OFFSET = 60
+    code_string = 'castep_relax'  # Identifier for which code is running
+
+    # pylint: disable=attribute-defined-outside-init
+    def _init_parameters(self, fw_spec):
+        """Initialise the internal parameters"""
+        # Singlepoint so the cycles must be zero
+        self['cycles'] = 0
+        super()._init_parameters(fw_spec)
+
+    def run_task(self, fw_spec):
+        """Run the task"""
+        self._init_parameters(fw_spec)
+        # Make sure we are doing singlepoint
+        new_lines = []
+        for line in self.param_content.split("\n"):
+            if line:
+                new_lines.append(re.sub(r"task[ :=]+.+$", "task : singlepoint", line, flags=re.IGNORECASE))
+        self.param_content = '\n'.join(new_lines) + "\n"
+
+        # Write the input files
+        self._prepare_inputs(self.struct_name)
+        cmd = self._get_cmd()
+
+        # Run CASTEP relax, leave one minute for cleaning up
+        actual_timeout = self.timeout - self.SCHEDULER_TIME_OFFSET
+        self.logger.info(f'Setting timeout to: {actual_timeout} seconds')
+
+        # Check if we have sufficient time for this run, if not we do not do the relaxation
+        if actual_timeout < self.minimum_run_time:
+            # Sleep for 10 seconds
+            slp = 10 if actual_timeout > 10 else 1
+            time.sleep(slp)
+            return self._handle_insufficient_run_time(fw_spec)
+
+        relax_outcome = self._run_relax(
+            self.struct_name,
+            cmd,
+            actual_timeout,
+            prepend_command=self.prepend_command,
+            append_command=self.append_command)
+
+        if relax_outcome is RelaxOutcome.FINISHED:
+            return self._handle_relax_finshed()
+
+        if relax_outcome is RelaxOutcome.TIMEDOUT:
+
+            # Do not add new jobs if there are less than 20 cycles
+            self.logger.info('Timed out - consider re-run this task with a different worker')
+
+        # The relaxation is errorred
+        return self._handle_relax_error(fw_spec)
+
+
+@explicit_serialize
 class AirssGulpRelaxTask(AirssCastepRelaxTask):
     """
     Relaxation using GULP instead of CASTEP
@@ -804,7 +872,7 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
     required_params = ['cycles', 'param_content', 'executable']
     optional_params = ['minimum_run_time', 'prepend_command', 'append_command', 'cluster']
     MINIMUM_RUN_TIME = 10
-    SHCEUDLER_TIME_OFFSET = 10
+    SCHEDULER_TIME_OFFSET = 10
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
     code_string = 'gulp_relax'  # Identifier for which code is running
     _param_suffix = '.lib'
@@ -828,7 +896,7 @@ class AirssGulpRelaxTask(AirssCastepRelaxTask):
         """Run the 'gulp_relax' program"""
         outcome = RelaxOutcome.UNDETERMINED
         self._prepare_run_script(cmd, prepend_command, append_command)
-        with transiant_file('.relax_stdout', mode='w+') as outtmp:
+        with transient_file('.relax_stdout', mode='w+') as outtmp:
             try:
                 subprocess.run(f'./{self.run_script_name}',
                                timeout=timeout,
@@ -908,7 +976,7 @@ class AirssPp3RelaxTask(AirssGulpRelaxTask):
     required_params = ['cycles', 'param_content', 'executable']
     optional_params = ['minimum_run_time', 'prepend_command', 'append_command', 'cluster']
     MINIMUM_RUN_TIME = 10
-    SHCEUDLER_TIME_OFFSET = 10
+    SCHEDULER_TIME_OFFSET = 10
     logger = get_fw_logger(__name__, l_dir=None, stream_level='INFO')
     code_string = 'pp3_relax'  # Identifier for which code is running
     _param_suffix = '.pp'
@@ -930,17 +998,17 @@ class AirssPp3RelaxTask(AirssGulpRelaxTask):
 @explicit_serialize
 class DbRecordTask(FiretaskBase):
     """
-    Taks for storing a record to the database
+    A task for storing a record to the database
 
     Insert a record into the database, includes the found structures and seed
-    and the paramters.
+    and the parameters.
 
     There must be the following keys in the spec: struct_name, project_name.
     The <struct_name>.res file must be present in the current working directory.
 
     """
 
-    optional_params = ['db_file', 'include_param']
+    optional_params = ['db_file', 'include_param', 'res_type']
     default_params = {
         'db_file': DB_FILE,
         'include_param': False,
@@ -950,10 +1018,12 @@ class DbRecordTask(FiretaskBase):
     # pylint: disable=attribute-defined-outside-init
     def _init_parameters(self, fw_spec):
         """Initialise the parameters"""
-        self.db_file = DB_FILE
-        self.include_param = False
 
-        set_attributes(self, fw_spec, self.default_params)
+        for key, value in self.default_params.items():
+            if self.get(key) is None:
+                self[key] = value
+        self.db_file = self['db_file']
+        self.include_param = self['include_param']
 
     def run_task(self, fw_spec):
         """
@@ -1003,15 +1073,16 @@ class DbRecordTask(FiretaskBase):
             seed_name=seed_name,
             seed_hash=seed_hash,
             seed_content=seed_content,
+            res_type=self.get('res_type', 'relax'),
         )
-        self.logger.info(f'Deposited the relaxed structure of {struct_name}')
+        self.logger.info(f'Deposited the structure of {struct_name}, type {self.get("res_type", "relax")}')
         return FWAction(update_spec={'task_uuid': task_uuid})
 
 
 @explicit_serialize
 class AirssDataTransferTask(FiretaskBase):
     """
-    Task for transfering data to the repository
+    Task for transfering data to the file repository. 
 
     The task is for transfering data generated in the search
     and save it to the directory as specified by the `project_name`
@@ -1092,7 +1163,7 @@ class AirssDataTransferTask(FiretaskBase):
                     shutil.copy(seed_file, seed_file_pfolder)
 
     def _get_param(self, fw_spec, name, default=None):
-        """Get paramaters that can be overriden by that in fw_spec"""
+        """Get paramaters that can be overridden by that in fw_spec"""
 
         if name in fw_spec:
             return fw_spec.get(name)
@@ -1100,7 +1171,7 @@ class AirssDataTransferTask(FiretaskBase):
 
 
 @contextlib.contextmanager
-def transiant_file(fname, mode='w+'):
+def transient_file(fname, mode='w+'):
     """Open a temporary file that will be deleted afterwards"""
     fhandle = open(fname, mode)
     yield fhandle
@@ -1178,11 +1249,11 @@ def create_symlinks(base_path, project_name, filenames):
         try:
             os.symlink(Path(filename).resolve(), target_path)
         except FileExistsError:
-            logger.error(f'Symbolics exists for {filename}')
+            logger.error(f'Symbolic link exists for {filename}')
         else:
             targets.append(target_path)
 
-    logger.info(f'Symbolics created for {filenames}')
+    logger.info(f'Symbolic link created for {filenames}')
     yield targets
 
     # Remove the links when finished

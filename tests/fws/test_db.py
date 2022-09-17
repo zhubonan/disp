@@ -96,11 +96,14 @@ BLA
                                   res_content=res,
                                   param_content=param,
                                   seed_name='C10',
+                                  res_type='singlepoint',
                                   seed_content=seed)
 
     assert ParamFile.objects.count() == 1
     assert SeedFile.objects.count() == 1
     assert ResFile.objects.count() == 2
+    assert ResFile.objects(struct_name='C10-TEST-2').first().res_type == 'singlepoint'
+    assert ResFile.objects(struct_name='C10-TEST-1').first().res_type == 'relax'
 
     results = clean_db.retrieve_project('test/run1',
                                         include_seed=True,

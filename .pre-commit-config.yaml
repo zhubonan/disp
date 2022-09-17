@@ -13,12 +13,12 @@ repos:
   - id: double-quote-string-fixer
   - id: forbid-new-submodules
 
-- repo: git://github.com/pre-commit/mirrors-yapf
-  rev: v0.28.0
-  hooks:
-  - id: yapf
-    language: system
-    types: [python]
+# - repo: git://github.com/pre-commit/mirrors-yapf
+#   rev: v0.28.0
+#   hooks:
+#   - id: yapf
+#     language: system
+#     types: [python]
 
 - repo: https://github.com/PyCQA/prospector
   rev: 1.1.7

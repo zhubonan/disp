@@ -23,7 +23,7 @@ class Creator(EmbeddedDocument):
 
 class DispEntry(Document):
     """
-    DispEntry is primiary document type for DISP related records
+    DispEntry is primary document type for DISP related records
 
     Each entry should be associated with a project and seed, plus records of the creation times
     """
@@ -50,7 +50,7 @@ class ResProperty(EmbeddedDocument):
     """
     Associated properties of a SHELX file.
 
-    These infromation are parsed from the "content" field, used for easy querying and
+    These information are parsed from the "content" field, used for easy querying and
     data retrival.
     """
     H = FloatField()  # Enthalpy   # pylint: disable=invalid-name
@@ -76,6 +76,7 @@ class ResFile(DispEntry):
     seed_file = ReferenceField('SeedFile')
     init_structure_file = ReferenceField('InitialStructureFile')
     properties = EmbeddedDocumentField(ResProperty)
+    res_type = StringField()
 
 
 class ParamFile(DispEntry):

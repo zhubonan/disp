@@ -204,7 +204,7 @@ class SearchDB:
 
     def insert_param(self, project_name: str, param_content: str,
                      seed_name: str):
-        """Insert a single record for paramter"""
+        """Insert a single record for parameter"""
 
         md5hash = hashlib.md5(param_content.encode()).hexdigest()
         param = ParamFile.objects(md5hash=md5hash,
@@ -225,7 +225,9 @@ class SearchDB:
                              param_content=None,
                              seed_name=None,
                              seed_hash=None,
-                             seed_content=None):
+                             seed_content=None,
+                             res_type='relax',
+                             ):
         """Insert a record of the resultant structure of a search"""
 
         if seed_hash and seed_content:
@@ -247,20 +249,23 @@ class SearchDB:
         res_record = ResFile(seed_name=seed_name,
                              project_name=project_name,
                              content=res_content,
-                             struct_name=struct_name)
+                             struct_name=struct_name,
+                             res_type=res_type,
+                             )
         # Link to the Param and Seed files
         res_record.param_file = param_file
         res_record.seed_file = seed_file
         self.include_creator(res_record)
 
-        # Link with the initial structure of this record
-        # Link to the last record in case of Firework level rerun
-        init = InitialStructureFile.objects(
-            project_name=project_name,
-            seed_name=seed_name,
-            struct_name=struct_name).order_by('-created_on').first()
-        if init:
-            res_record.init_structure_file = init
+        if res_type == 'relax':
+            # Link with the initial structure of this record
+            # Link to the last record in case of Firework level rerun
+            init = InitialStructureFile.objects(
+                project_name=project_name,
+                seed_name=seed_name,
+                struct_name=struct_name).order_by('-created_on').first()
+            if init:
+                res_record.init_structure_file = init
 
         res_record.save()
         return res_record
@@ -653,7 +658,7 @@ def get_atomate_wflows(wf_coll,
                        states,
                        seed_regex=None,
                        project_regex=None) -> pd.DataFrame:
-    """Obtain workflow informaton for atomate jobs"""
+    """Obtain workflow information for atomate jobs"""
     return get_workflows(wf_coll, ['atomate-relax'],
                          states,
                          seed_regex=seed_regex,
@@ -664,7 +669,7 @@ def get_std_wflows(wf_coll,
                    states,
                    seed_regex=None,
                    project_regex=None) -> pd.DataFrame:
-    """Obtain workflow informaton for standard search jobs"""
+    """Obtain workflow information for standard search jobs"""
     return get_workflows(wf_coll, ['relax', 'search'],
                          states,
                          seed_regex=seed_regex,

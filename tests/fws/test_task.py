@@ -1,6 +1,7 @@
 """
 Test the FireTasks
 """
+import re
 import tarfile
 import os
 import subprocess
@@ -12,7 +13,8 @@ import pytest
 from fireworks.core.firework import Firework, Workflow
 from fireworks.core.rocket_launcher import launch_rocket
 from fireworks.core.fworker import FWorker
-from disp.fws.tasks import AirssBuildcellTask, AirssPp3RelaxTask, AirssValidateTask, AirssGulpRelaxTask, AirssCastepRelaxTask, RelaxOutcome, DbRecordTask
+from disp.fws.tasks import AirssBuildcellTask, AirssPp3RelaxTask, AirssValidateTask, AirssGulpRelaxTask, AirssCastepRelaxTask, RelaxOutcome, DbRecordTask, CastepSinglepointTask
+from disp.fws.utility_tasks import CleanDir
 from disp.scheduler import Dummy
 
 # pylint: disable=redefined-outer-name, too-many-instance-attributes, import-outside-toplevel, unused-argument, protected-access
@@ -370,7 +372,7 @@ def test_insufficient_time(clean_launchpad, temp_workdir, get_data_dir):
     # Only 10s left, but gulp needs 20 seconds
     Dummy.DEFAULT_REMAINING_TIME = 20
     AirssPp3RelaxTask.MINIMUM_RUN_TIME = 20
-    AirssPp3RelaxTask.SHCEUDLER_TIME_OFFSET = 10
+    AirssPp3RelaxTask.SCHEDULER_TIME_OFFSET = 10
 
     btask = AirssPp3RelaxTask(
         param_content=param_content,
@@ -444,7 +446,30 @@ def test_record_upload(temp_workdir, clean_launchpad, new_db, datapath):
         additional_filters={'struct_name': 'C2-TEST-2'})
     assert results[0].seed_file
 
+def test_clean_dir(temp_workdir, clean_launchpad):
+    """Test the record upload task"""
 
+    seed_name = 'C2'
+    struct_name = 'C2-TEST-1'
+    touch = lambda x: (Path(temp_workdir) / x).touch()
+    for name in [
+            seed_name + '.cell', struct_name + '.cell', struct_name + '.res',
+            seed_name + '.foo'
+    ]:
+        touch(name)
+    spec = {
+        'clean_dir': True,
+        'clean_dir_included': ['.foo'] ,
+        'clean_dir_excluded': ['.res'] ,
+    }
+    task = CleanDir()
+    clean_launchpad.add_wf(Firework([task], spec=spec))
+    launch_rocket(clean_launchpad)
+    assert not (Path(temp_workdir) / (seed_name + '.cell')).is_file()
+    assert (Path(temp_workdir) / (struct_name + '.res')).is_file()
+    assert not (Path(temp_workdir) / (seed_name + '.foo')).is_file()
+    assert (Path(temp_workdir) /  'FW.json').is_file()
+  
 @need_pp3
 def test_upload_record_task(clean_launchpad, temp_workdir, get_data_dir,
                             new_db, datapath):
@@ -511,6 +536,39 @@ def test_castep_relax_task(clean_launchpad, temp_workdir, get_data_dir):
     launch_rocket(lpd)
 
     assert Path('C2-TEST.castep').is_file()
+    assert len(list(temp_workdir.glob('C2-TEST.res'))) == 1
+    assert lpd.get_launch_by_id(
+        1).action.stored_data['relax_status'] == RelaxOutcome.FINISHED.name
+
+@need_castep
+def test_castep_singlepoint_task(clean_launchpad, temp_workdir, get_data_dir):
+    """Test the CASTEP singlepoint calculation task"""
+    with open(get_data_dir('castep_relax') / 'C2-RAND.cell') as fhandle:
+        struct_content = fhandle.read()
+
+    with open(get_data_dir('castep_relax') / 'C2-RAND.param') as fhandle:
+        param_content = fhandle.read()
+
+    btask = CastepSinglepointTask(
+        param_content=param_content,
+        executable='mpirun -np 2 castep.mpi',
+    )
+    # project_name = 'TEST/C2'
+    fwk = Firework(
+        [btask],
+        spec={
+            'struct_name': 'C2-TEST',
+            'struct_content': struct_content,
+            'seed_name': 'C2',
+        })
+
+    wkf = Workflow([fwk])
+    lpd = clean_launchpad
+    lpd.add_wf(wkf)
+    launch_rocket(lpd)
+
+    assert Path('C2-TEST.castep').is_file()
+    assert re.match(r"task[: =]+sing", Path('C2-TEST.param').read_text())
     assert len(list(temp_workdir.glob('C2-TEST.res'))) == 1
     assert lpd.get_launch_by_id(
         1).action.stored_data['relax_status'] == RelaxOutcome.FINISHED.name
@@ -621,7 +679,7 @@ def test_castep_timeout(clean_db, clean_launchpad, temp_workdir, get_data_dir, d
     # Only 10s left, but gulp needs 20 seconds
     Dummy.DEFAULT_REMAINING_TIME = 10
     AirssCastepRelaxTask.MINIMUM_RUN_TIME = 3
-    AirssCastepRelaxTask.SHCEUDLER_TIME_OFFSET = 5
+    AirssCastepRelaxTask.SCHEDULER_TIME_OFFSET = 5
 
     btask = AirssCastepRelaxTask(
         param_content=param_content,
@@ -648,4 +706,4 @@ def test_castep_timeout(clean_db, clean_launchpad, temp_workdir, get_data_dir, d
     assert action.stored_data['relax_status'] == RelaxOutcome.TIMEDOUT.name
     Dummy.DEFAULT_REMAINING_TIME = 9999
     AirssCastepRelaxTask.MINIMUM_RUN_TIME = 600
-    AirssCastepRelaxTask.SHCEUDLER_TIME_OFFSET = 60
+    AirssCastepRelaxTask.SCHEDULER_TIME_OFFSET = 60

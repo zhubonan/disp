@@ -105,7 +105,7 @@ def test_db_commands(isolated_dir, new_db):
     assert output.exit_code == 0
 
 
-def test_deploy_search(isolated_project_dir):
+def test_deploy_search(isolated_project_dir, new_db):
     """
     Test deploy as search from CLI
     """
@@ -125,6 +125,22 @@ def test_deploy_search(isolated_project_dir):
     args.extend(['--seed', 'Al', '--num', '5', '--project', 'testproject'])
     output = runner.invoke(main, args)
     assert output.exit_code == 0
+
+def test_deploy_singlepoint(isolated_project_dir, new_db):
+    """
+    Test deploy as search from CLI
+    """
+    from fireworks.core.launchpad import LaunchPad
+    runner = CliRunner()
+    args = ['--db-file', 'disp_db.yaml', '--lpad-file', 'my_launchpad.yaml', 'deploy', 'singlepoint']
+    args.extend(['--seed', 'Si2', '--project', 'testproject', '--cell', 'Si2.cell', '--param', 'Si2.param'])
+    output = runner.invoke(main, args, catch_exceptions=True)
+    assert output.exit_code == 0
+
+    args.extend(['--dryrun'])
+    output = runner.invoke(main, args)
+    assert output.exit_code == 0
+
 
 @pytest.fixture
 def deploy_and_run(isolated_project_dir, new_db, clean_launchpad):
