@@ -87,29 +87,37 @@ def list_seeds(db_obj, seed, project, state, query):
 
 @db.command("summary")
 @click.option("--workflows/--no-workflows", is_flag=True, default=True)
-@click.option("--project", "-p", help="Project to include, supports regex.")
-@click.option("--seed", "-s", help="Seeds to include, support regex")
+@click.option("--project-regex", "-pr", help="Project to include, supports regex.")
+@click.option("--project", "-p", multiple=True, help="Project to include, supports multiple values.")
+@click.option("--seed-regex", "-sr", help="Seeds to include, support regex")
+@click.option("--seed", "-sr", multiple=True, help="Seeds to be included, support multiple values.")
 @click.option("--state", multiple=True, type=click.Choice(list(Firework.STATE_RANKS)), help="Only include matches with these states")
 @click.option("--show-priority", default=False, is_flag=True, help="Show the priority of workflows instead")
 @click.option("--per-project", help="Summarise per project", is_flag=True, default=False)
 @click.option("--no-res", is_flag=True, help="Do not query the search structure counts", default=False)
 @click.option("--atomate", "-ato", is_flag=True, default=False, help="Show the results on the atomate collection instead.")
+@click.option("--singlepoint", "-sp", is_flag=True, default=False, help="Show only singlepoint results instead.")
 @click.option("--verbose", "-v", is_flag=True, default=False)
 @pass_db_obj
-def summary(db_obj, project, state, seed, per_project, workflows, show_priority, atomate, no_res, verbose):
+def summary(
+    db_obj, project, state, seed, per_project, workflows, show_priority, atomate, no_res, verbose, singlepoint, seed_regex, project_regex
+):
     """
     Display a summary of number of structures in the database
     """
     import pandas as pd
 
     df = db_obj.show_struct_counts(
-        project,
-        seed,
+        project_regex,
+        seed_regex,
         state,
         include_workflows=workflows,
         include_atomate=atomate,
         show_priority=show_priority,
         include_res=not no_res,
+        include_singlepoint=singlepoint,
+        projects=project,
+        seeds=seed,
         verbose=verbose,
     )
     if per_project:

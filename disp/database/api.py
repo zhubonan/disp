@@ -454,26 +454,32 @@ class SearchDB:
         states=None,
         include_workflows=True,
         include_atomate=False,
+        include_singlepoint=False,
         show_priority=False,
         include_res=True,
         verbose=False,
+        projects=None,
+        seeds=None,
     ):
         """
         Display count of the structures
         """
-        if include_workflows and not include_atomate:
+        if include_workflows:
             wf_mode = "search"
-        elif include_atomate:
-            wf_mode = "ato"
+            if include_atomate:
+                wf_mode = "ato"
+            elif include_singlepoint:
+                wf_mode = "singlepoint"
         else:
             wf_mode = "none"
-
         counter = StructCounts(
             self.collection,
             self.database.fireworks,
             self.database.workflows,
             states=states,
             seed_regex=seed_regex,
+            projects=projects,
+            seeds=seeds,
             project_regex=project_regex,
             wf_mode=wf_mode,
             show_priority=show_priority,
@@ -578,23 +584,38 @@ def get_pipeline(cls_string, project_regex=None, seed_regex=None, projects=None,
     return pipeline
 
 
-def get_atomate_wflows(wf_coll, states, seed_regex=None, project_regex=None) -> pd.DataFrame:
+def get_atomate_wflows(wf_coll, states, seed_regex=None, project_regex=None, seeds=None, projects=None) -> pd.DataFrame:
     """Obtain workflow information for atomate jobs"""
-    return get_workflows(wf_coll, ["atomate-relax"], states, seed_regex=seed_regex, project_regex=project_regex)
+    return get_workflows(
+        wf_coll, ["atomate-relax"], states, seed_regex=seed_regex, project_regex=project_regex, projects=projects, seeds=seeds
+    )
 
 
-def get_std_wflows(wf_coll, states, seed_regex=None, project_regex=None) -> pd.DataFrame:
+def get_std_wflows(wf_coll, states, seed_regex=None, project_regex=None, seeds=None, projects=None) -> pd.DataFrame:
     """Obtain workflow information for standard search jobs"""
-    return get_workflows(wf_coll, ["relax", "search"], states, seed_regex=seed_regex, project_regex=project_regex)
+    return get_workflows(
+        wf_coll, ["relax", "search"], states, seed_regex=seed_regex, project_regex=project_regex, projects=projects, seeds=seeds
+    )
 
 
-def get_workflows(wf_coll, disp_types, states, seed_regex=None, project_regex=None) -> pd.DataFrame:
+def get_singlepoint_wflows(wf_coll, states, seed_regex=None, project_regex=None, seeds=None, projects=None) -> pd.DataFrame:
+    """Obtain workflow information for standard search jobs"""
+    return get_workflows(
+        wf_coll, ["singlepoint"], states, seed_regex=seed_regex, project_regex=project_regex, projects=projects, seeds=seeds
+    )
+
+
+def get_workflows(wf_coll, disp_types, states, seed_regex=None, project_regex=None, projects=None, seeds=None) -> pd.DataFrame:
     """Obtain atomate workflows matching certain criteria"""
     query = {}
     if seed_regex:
         query["metadata.seed_name"] = {"$regex": seed_regex}
+    if seeds:
+        query["metadata.seed_name"] = {"$in": seeds}
     if project_regex:
         query["metadata.project_name"] = {"$regex": project_regex}
+    if projects:
+        query["metadata.project_name"] = {"$in": projects}
     if states:
         query["state"] = {"$in": states}
 
@@ -658,6 +679,8 @@ class StructCounts:
         show_priority=False,
         include_res=True,
         verbose=True,
+        projects=None,
+        seeds=None,
     ):
         """Initialise a StructCounts object"""
         self.disp_coll = disp_coll
@@ -666,8 +689,8 @@ class StructCounts:
         self.states = states
         self.seed_regex = seed_regex
         self.project_regex = project_regex
-        self.seeds = []
-        self.projects = []
+        self.projects = [] if projects is None else projects
+        self.seeds = [] if seeds is None else seeds
         self.verbose = verbose
         self.wf_mode = wf_mode
         self.show_priority = show_priority  # Not used
@@ -680,7 +703,6 @@ class StructCounts:
 
     def get_summary_df(self):
         """Main loginc for getting the summary of the data"""
-
         # First, obtain the workflows to be included
         if self.verbose:
             self.logger.info("Collecting workflow information")
@@ -740,10 +762,17 @@ class StructCounts:
     def get_wf_collection(self):
         """Get atomate workflow statistics"""
         if self.wf_mode == "search":
-
-            wf_records = get_std_wflows(self.wf_coll, self.states, self.seed_regex, self.project_regex)
+            wf_records = get_std_wflows(
+                self.wf_coll, self.states, self.seed_regex, self.project_regex, seeds=self.seeds, projects=self.projects
+            )
         elif self.wf_mode == "ato":
-            wf_records = get_atomate_wflows(self.wf_coll, self.states, self.seed_regex, self.project_regex)
+            wf_records = get_atomate_wflows(
+                self.wf_coll, self.states, self.seed_regex, self.project_regex, seeds=self.seeds, projects=self.projects
+            )
+        elif self.wf_mode == "singlepoint":
+            wf_records = get_singlepoint_wflows(
+                self.wf_coll, self.states, self.seed_regex, self.project_regex, seeds=self.seeds, projects=self.projects
+            )
         elif self.wf_mode == "none":
             wf_records = []
         else:
@@ -772,7 +801,7 @@ class StructCounts:
         """Obtain the entry of res files"""
         ttmp = time.time()
 
-        # Check if any filters have been applied - warning if thait is not the case
+        # Check if any filters have been applied - warning if that is not the case
         has_no_filter = all(tmp is None for tmp in [self.project_regex, self.projects, self.seeds, self.seed_regex])
         if has_no_filter:
             self.logger.info("WARNING: No effective filters applied - projecting the entire database!!")
