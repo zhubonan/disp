@@ -492,6 +492,8 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         job. This will involve changing the fireworks code.
         """
         # pylint: disable=cyclic-import, import-outside-toplevel
+        import hashlib
+
         from disp.fws.works import RelaxFW
 
         # We must include the structure, as the restarted firework may be on
@@ -507,6 +509,13 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         # So if I am in a loop, it will get picked up first next time....
         new_spec["_priority"] = self.base_priority + self.PRIORITY_OFFSET["insufficient_time"]
         new_spec["struct_content"] = struct_content
+
+        # Record the md5hash of the seed file
+        if Path(f"{self.seed_name}.cell").is_file():
+            seed_content = Path(f"{self.seed_name}.cell").read_text()
+            new_spec["seed_hash"] = hashlib.md5(seed_content.encode()).hexdigest()
+        else:
+            self.logger.warn("Cannot find seed file {self.seed_name}.cell for recording the hash")
 
         new_fw = RelaxFW(
             project_name=fw_spec.get("project_name"),
@@ -535,6 +544,8 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         """Handle the case where relaxation is time out"""
         # Take the last relaxation, mind that the precision in the .castep file is lower
         # pylint: disable=cyclic-import, import-outside-toplevel
+        import hashlib
+
         from disp.fws.works import RelaxFW
 
         struct_name = self.struct_name
@@ -576,6 +587,14 @@ class AirssCastepRelaxTask(FiretaskBase):  # pylint: disable=too-many-instance-a
         # Update the number of existing launches
         new_spec["launch_count"] = self.nlaunches
         new_spec["_priority"] = self.base_priority + self.PRIORITY_OFFSET["continuation"]
+
+        # Record the md5hash of the seed file
+        if Path(f"{self.seed_name}.cell").is_file():
+            seed_content = Path(f"{self.seed_name}.cell").read_text()
+            new_spec["seed_hash"] = hashlib.md5(seed_content.encode()).hexdigest()
+        else:
+            self.logger.warn("Cannot find seed file {self.seed_name}.cell for recording the hash")
+
         # Remove the uuid field from the children Firework
         new_spec.pop("task_uuid", None)
 

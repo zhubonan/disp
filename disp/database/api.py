@@ -211,7 +211,16 @@ class SearchDB:
         if seed_name and seed_content:
             seed_file = self.insert_seed(project_name, seed_name, seed_content)
         else:
-            seed_file = None
+            if seed_hash:
+                try:
+                    seed_file = SeedFile.objects(md5hash=md5hash, project_name=project_name, seed_name=seed_name).first()
+                except Exception:
+                    self.logger.warn(
+                        "Cannot locate seed with hash {seed_hash}, this structure will not be linked with its generation seed..."
+                    )
+                    seed_file = None
+            else:
+                seed_file = None
 
         if param_content:
             param_file = self.insert_param(project_name, param_content, seed_name)
