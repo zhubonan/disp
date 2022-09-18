@@ -52,7 +52,7 @@ class SearchDB:
     """
 
     logger = getLogger(__name__)
-    INDICES = ["project_name", "seed_name", "created_on", "md5hash", "struct_name"]
+    INDICES = ["project_name", "seed_name", "created_on", "md5hash", "struct_name", "res_type"]
     _ATOMATE_TASK_COLL = "atomate_tasks"  # Name of the collection for atomate tasks
     INDICES_ATOMATE = ["project_name", "seed_name", "struct_name", "uuid", "unique_name", "task_label", "disp_type", "last_updated"]
 
@@ -165,8 +165,12 @@ class SearchDB:
             for name in ["project_name", "seed_name", "disp_type", *wf_additional_fields]:
                 lpad.workflows.create_index("metadata." + name, background=background)
 
-    def insert_seed(self, project_name: str, seed_name: str, seed_content: str):
-        """Insert a single record of the seed for structure generation"""
+    def insert_seed(self, project_name: str, seed_name: str, seed_content: str) -> SeedFile:
+        """
+        Insert a single record of the seed for structure generation.
+
+        Deduplicate based on md5 hash value. The resulting SeedFile is returned.
+        """
         md5hash = hashlib.md5(seed_content.encode()).hexdigest()
         seed = SeedFile.objects(md5hash=md5hash, project_name=project_name, seed_name=seed_name).first()
         if not seed:
@@ -175,7 +179,7 @@ class SearchDB:
             seed.save()
         return seed
 
-    def insert_param(self, project_name: str, param_content: str, seed_name: str):
+    def insert_param(self, project_name: str, param_content: str, seed_name: str) -> ParamFile:
         """Insert a single record for parameter"""
 
         md5hash = hashlib.md5(param_content.encode()).hexdigest()
@@ -196,15 +200,15 @@ class SearchDB:
         seed_hash=None,
         seed_content=None,
         res_type="relax",
-    ):
+    ) -> ResFile:
         """Insert a record of the resultant structure of a search"""
 
         if seed_hash and seed_content:
             md5hash = hashlib.md5(seed_content.encode()).hexdigest()
             assert md5hash == seed_hash, "The seed_hash does not match seed_content!!"
 
-        # Seed content supplied but no hash given - insert this seed to the database
-        if (not seed_hash) and seed_name and seed_content:
+        # Seed content supplied insert it into the database
+        if seed_name and seed_content:
             seed_file = self.insert_seed(project_name, seed_name, seed_content)
         else:
             seed_file = None
@@ -240,7 +244,9 @@ class SearchDB:
         res_record.save()
         return res_record
 
-    def insert_initial_structure(self, project_name: str, struct_name: str, struct_content: str, seed_name: str, seed_content: str):
+    def insert_initial_structure(
+        self, project_name: str, struct_name: str, struct_content: str, seed_name: str, seed_content: str
+    ) -> InitialStructureFile:
         """Insert a record of a randomly generated structure"""
         seed_file = self.insert_seed(project_name, seed_name, seed_content)
         init_structure = InitialStructureFile(
