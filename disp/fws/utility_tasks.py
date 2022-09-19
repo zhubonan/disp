@@ -31,7 +31,7 @@ class CleanDir(FiretaskBase):
 
     required_params = []
     optional_params = []
-    extensions = [".castep", ".cell", ".param", ".bib", ".usp", ".res", ".recpot"]
+    extensions = [".castep", ".cell", ".param", ".bib", ".usp", ".res", ".recpot", ".conv"]
 
     def run_task(self, fw_spec=None):
         extensions = list(self.extensions)
