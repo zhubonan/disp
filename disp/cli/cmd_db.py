@@ -9,6 +9,7 @@ from pathlib import Path
 
 import click
 from fireworks.core.firework import Firework
+from fireworks.core.launchpad import LaunchPad
 from tabulate import tabulate
 from tqdm import tqdm
 
@@ -55,6 +56,7 @@ def db(ctx):
 
 # Decorator of passing the SearchDB object
 pass_db_obj = click.make_pass_decorator(SearchDB)
+pass_lpad_obj = click.make_pass_decorator(LaunchPad)
 
 
 @db.command("list-projects")

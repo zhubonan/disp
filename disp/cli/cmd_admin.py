@@ -135,3 +135,59 @@ def delete_data(sdb, seed, project, struct, commit):
             click.echo(f"Deletion completed.")
     else:
         click.echo(f"This is a dryrun - nothing has been deleted.")
+
+
+@admin.command("delete-entries")
+@click.option("--project", required=True)
+@click.option("--seed", required=False, help="Select seeds by regex")
+@pass_db_obj
+def delete_entries(db_obj, project, seed):
+    """Delete entries in the data base"""
+    from disp.database.api import ResFile
+
+    if seed:
+        qobj = ResFile.objects(project_name=project, seed_name=seed)
+    else:
+        qobj = ResFile.objects(project_name=project)
+
+    click.echo(f"Number of DISP entries to be deleted for project {project}: {qobj.count()}")
+
+    # Checking fireworks
+    lpad = db_obj.lpad
+    # Search for the workflows
+    wfs = lpad.workflows.find({"metadata.project_name": project}, {"nodes": 1})
+    wf_ids = []
+    fw_num_ids = []
+    nwf = 0
+    for wf in wfs:
+        nwf += 1
+        fw_num_ids.extend(wf["nodes"])
+        wf_ids.append(wf["_id"])
+    launch_ids = [entry["_id"] for entry in lpad.launches.find({"fw_id": {"$in": fw_num_ids}}, {"launch_id": 1})]
+
+    click.echo(f"Number of workflows to be deleted from {lpad.name} @ {lpad.host}:")
+    click.echo(f"Workflows  : {nwf} in collection {lpad.workflows.name}")
+    click.echo(f"Fireworks  : {len(fw_num_ids)} in collection {lpad.fireworks.name}")
+    click.echo(f"Launches   : {len(launch_ids)} in collection {lpad.launches.name}")
+
+    # Search for related firworks
+    # Search for related launches
+    reply = click.confirm("Continue with deletion of DISP entries?")
+    if reply is True:
+        click.echo(f"Proceed with the deletion...")
+        ndeleted = qobj.delete()
+        click.echo(f"{ndeleted} entries deleted!")
+    else:
+        click.echo(f"Deletion of entries aborted.")
+
+    reply = click.confirm("Continue with deletion of Fireworks entries?")
+    if reply is True:
+        click.echo(f"Proceed with the deletion...")
+        ndeleted = lpad.workflows.delete_many({"_id": {"$in": wf_ids}})
+        click.echo(f"{ndeleted.deleted_count} workflow entries deleted!")
+        ndeleted = lpad.fireworks.delete_many({"fw_id": {"$in": fw_num_ids}})
+        click.echo(f"{ndeleted.deleted_count} fireworks entries deleted!")
+        ndeleted = lpad.launches.delete_many({"_id": {"$in": launch_ids}})
+        click.echo(f"{ndeleted.deleted_count} launch entries deleted!")
+    else:
+        click.echo(f"Deletion of entries aborted.")

@@ -561,7 +561,7 @@ def get_hash(string):
     return hashlib.md5(string.encode()).hexdigest()
 
 
-def get_pipeline(cls_string, project_regex=None, seed_regex=None, projects=None, seeds=None):
+def get_pipeline(cls_string, projects=None, seeds=None):
     """
     Obtain the pipline for querying SearchDB
     """
@@ -570,11 +570,11 @@ def get_pipeline(cls_string, project_regex=None, seed_regex=None, projects=None,
         {"$group": {"_id": {"seed": "$seed_name", "project": "$project_name"}, "count": {"$sum": 1}}},
     ]
 
-    # Add regular expression matches
-    if project_regex:
-        pipeline[0]["$match"]["project_name"] = {"$regex": project_regex}
-    if seed_regex:
-        pipeline[0]["$match"]["seed_name"] = {"$regex": seed_regex}
+    # Add regular expression matches - this is very in efficient....
+    # if project_regex:
+    #     pipeline[0]["$match"]["project_name"] = {"$regex": project_regex}
+    # if seed_regex:
+    #     pipeline[0]["$match"]["seed_name"] = {"$regex": seed_regex}
     # Query directly by list of seeds/projects - this overrides the regex options
     if projects:
         pipeline[0]["$match"]["project_name"] = {"$in": projects}
@@ -689,8 +689,8 @@ class StructCounts:
         self.states = states
         self.seed_regex = seed_regex
         self.project_regex = project_regex
-        self.projects = [] if projects is None else projects
-        self.seeds = [] if seeds is None else seeds
+        self.projects = [] if projects is None else list(projects)
+        self.seeds = [] if seeds is None else list(seeds)
         self.verbose = verbose
         self.wf_mode = wf_mode
         self.show_priority = show_priority  # Not used
@@ -788,9 +788,9 @@ class StructCounts:
             # If no contrains on the seeds / projects is imposed, use the workflow results to
             # limit them
             if self.seed_regex is None:
-                self.projects = wf_records.project_name.unique().tolist()
+                self.projects.extend(wf_records.project_name.unique().tolist())
             if self.project_regex is None:
-                self.seeds = wf_records.seed_name.unique().tolist()
+                self.seeds.extend(wf_records.seed_name.unique().tolist())
         else:
             # NO entry - return an empty dataframe
             wf_df = pd.DataFrame()
@@ -806,10 +806,30 @@ class StructCounts:
         if has_no_filter:
             self.logger.info("WARNING: No effective filters applied - projecting the entire database!!")
 
+        # If Regex are used - obtain the exact match values
+        query = {}
+        if self.project_regex:
+            query["project_name"] = {"$regex": self.project_regex}
+        if self.seed_regex:
+            query["seed_name"] = {"$regex": self.seed_regex}
+
+        if any([self.project_regex, self.seed_regex]):
+            results = list(self.disp_coll.find(query, {"project_name": 1, "seed_name": 1}))
+            projects = {entry["project_name"] for entry in results}
+            self.logger.info(f"Resolved projects: {projects}")
+            self.logger.info(f"Resolved seeds: {projects}")
+            seeds = {entry["seed_name"] for entry in results}
+            self.seeds.extend(seeds)
+            self.projects.extend(projects)
+            self.project_regex = None
+            self.seed_regex = None
+
         # Find the SHELX entries for the matching entries
         res = self.disp_coll.aggregate(
             get_pipeline(
-                "DispEntry.ResFile", project_regex=self.project_regex, projects=self.projects, seeds=self.seeds, seed_regex=self.seed_regex
+                "DispEntry.ResFile",
+                projects=self.projects,
+                seeds=self.seeds,
             )
         )
         data = [(item["_id"]["seed"], item["_id"]["project"], item["count"]) for item in res]
@@ -822,8 +842,6 @@ class StructCounts:
         res = self.disp_coll.aggregate(
             get_pipeline(
                 "DispEntry.InitialStructureFile",
-                project_regex=self.project_regex,
-                seed_regex=self.seed_regex,
                 projects=self.projects,
                 seeds=self.seeds,
             )
