@@ -185,8 +185,9 @@ def deploy_and_run(isolated_project_dir, new_db, clean_launchpad):
 
 def test_db_post_run(deploy_and_run, new_db, clean_launchpad):
     """Test analysis command post run"""
+    import json
 
-    runner = CliRunner()
+    runner = CliRunner(mix_stderr=False)
 
     args = ["--db-file", "disp_db.yaml", "--lpad-file", "my_launchpad.yaml", "db", "summary", "--project", "testproject"]
     output = runner.invoke(main, args)
@@ -194,6 +195,12 @@ def test_db_post_run(deploy_and_run, new_db, clean_launchpad):
     lines = output.stdout.splitlines()
     assert any(["5" in line for line in lines])
     assert any(["testproject" in line for line in lines])
+
+    # JSON output
+    args = ["--db-file", "disp_db.yaml", "--lpad-file", "my_launchpad.yaml", "db", "summary", "--project", "testproject", "--json"]
+    output = runner.invoke(main, args)
+    assert output.exit_code == 0
+    assert json.loads(output.stdout)
 
     # Throughput command
     args = ["--db-file", "disp_db.yaml", "--lpad-file", "my_launchpad.yaml", "db", "throughput", "--no-plot"]
@@ -271,9 +278,8 @@ def test_admin(deploy_and_run, new_db, clean_launchpad):
         "delete-entries",
         "--project",
         "testproject",
-        "--commit",
     ]
-    output = runner.invoke(main, args, input="y\n")
+    output = runner.invoke(main, args, input="y\ny\n")
     assert output.exit_code == 0
     fw_ids = lpad.get_fw_ids({})
     assert len(fw_ids) == 0

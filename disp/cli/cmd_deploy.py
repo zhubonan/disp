@@ -29,7 +29,7 @@ def deploy(ctx):
     """Deploy search/relaxation to the FireServer"""
     lpad_file = ctx.obj["lpad_file"]
     ctx.obj = LaunchPad.from_file(lpad_file)
-    click.echo(f"Using launchpad file at `{lpad_file}`")
+    click.echo(f"Using launchpad file at `{lpad_file}`", err=True)
 
 
 pass_lpad = click.make_pass_decorator(LaunchPad)

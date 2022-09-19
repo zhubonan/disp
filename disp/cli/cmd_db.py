@@ -50,7 +50,7 @@ def db(ctx):
     """Options for the database"""
 
     db_file = ctx.obj.get("db_file")
-    click.echo(f"Using db file at {db_file}")
+    click.echo(f"Using db file at {db_file}", err=True)
     ctx.obj = SearchDB.from_db_file(db_file)
 
 
@@ -100,9 +100,23 @@ def list_seeds(db_obj, seed, project, state, query):
 @click.option("--atomate", "-ato", is_flag=True, default=False, help="Show the results on the atomate collection instead.")
 @click.option("--singlepoint", "-sp", is_flag=True, default=False, help="Show only singlepoint results instead.")
 @click.option("--verbose", "-v", is_flag=True, default=False)
+@click.option("--json", is_flag=True, default=False)
 @pass_db_obj
 def summary(
-    db_obj, project, state, seed, per_project, workflows, show_priority, atomate, no_res, verbose, singlepoint, seed_regex, project_regex
+    db_obj,
+    project,
+    state,
+    seed,
+    per_project,
+    workflows,
+    show_priority,
+    atomate,
+    no_res,
+    verbose,
+    singlepoint,
+    seed_regex,
+    project_regex,
+    json,
 ):
     """
     Display a summary of number of structures in the database
@@ -129,11 +143,13 @@ def summary(
             df = df.groupby("project").mean()
 
     if len(df) == 0:
-        click.echo("No data avalaible")
+        click.echo("No data available")
         return
-
+    if json:
+        click.echo(df.to_json())
+        return
     with pd.option_context("display.max_rows", 99999, "display.max_colwidth", 120):
-        print(df)
+        click.echo(df)
 
 
 @db.command("throughput")

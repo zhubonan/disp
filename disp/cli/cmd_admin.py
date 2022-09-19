@@ -17,11 +17,11 @@ def admin(ctx):
     """Admin commands"""
 
     lpad_file = ctx.obj.get("lpad_file")
-    click.echo(f"Using launchpad file at {lpad_file}")
+    click.echo(f"Using launchpad file at {lpad_file}", err=True)
     lpad = LaunchPad.from_file(lpad_file)
 
     db_file = ctx.obj.get("db_file")
-    click.echo(f"Using db file at {db_file}")
+    click.echo(f"Using db file at {db_file}", err=True)
     sdb = SearchDB.from_db_file(db_file)
     # Pass the launch pad
     sdb.lpad = lpad
@@ -89,55 +89,6 @@ def update_category(sdb, seed, project, category):
 
 
 @admin.command("delete-entries")
-@click.option("--seed")
-@click.option("--project")
-@click.option("--struct")
-@click.option("--commit", is_flag=True, default=False)
-@pass_db_obj
-def delete_data(sdb, seed, project, struct, commit):
-    """Delete DISP entries and associated workflows (Use with extreme caution)"""
-
-    query = {}
-    disp_query = {}
-    if seed:
-        query["metadata.seed_name"] = seed
-        disp_query["seed_name"] = seed
-    if project:
-        query["metadata.project_name"] = project
-        disp_query["project_name"] = project
-    if struct:
-        query["metadata.struct_name"] = struct
-        disp_query["struct_name"] = struct
-    if not query:
-        click.echo("No selection condition is passed")
-        raise click.Abort()
-    lpad: LaunchPad = sdb.lpad
-    wf_ids = lpad.get_wf_ids(query)
-
-    ndisp_entries = ResFile.objects(**disp_query).count()
-    ndisp_entries_init = InitialStructureFile.objects(**disp_query).count()
-    project_names_to_delete = {x.project_name for x in ResFile.objects(**disp_query)}
-    seed_names_to_delete = {x.seed_name for x in ResFile.objects(**disp_query)}
-
-    click.echo(f"Number of workflows to be deleted: {len(wf_ids)}")
-    click.echo(f"Number of SHELX entries and initial structures to be deleted: {ndisp_entries}/{ndisp_entries_init}")
-    click.echo(f"Deletion involves seeds: {seed_names_to_delete}, projects: {project_names_to_delete}")
-
-    if commit:
-        ok = click.confirm(f"Are you sure you want to delete the data?\nThis operation cannot be reversed!", abort=True)
-        if ok:
-            for wf_id in wf_ids:
-                lpad.delete_wf(wf_id)
-            for doc in ResFile.objects(**disp_query):
-                doc.delete()
-            for doc in InitialStructureFile.objects(**disp_query):
-                doc.delete()
-            click.echo(f"Deletion completed.")
-    else:
-        click.echo(f"This is a dryrun - nothing has been deleted.")
-
-
-@admin.command("delete-entries")
 @click.option("--project", required=True)
 @click.option("--seed", required=False, help="Select seeds by regex")
 @pass_db_obj
@@ -147,10 +98,12 @@ def delete_entries(db_obj, project, seed):
 
     if seed:
         qobj = ResFile.objects(project_name=project, seed_name=seed)
+        qobj_i = InitialStructureFile.objects(project_name=project, seed_name=seed)
     else:
         qobj = ResFile.objects(project_name=project)
+        qobj_i = InitialStructureFile.objects(project_name=project)
 
-    click.echo(f"Number of DISP entries to be deleted for project {project}: {qobj.count()}")
+    click.echo(f"Number of DISP entries to be deleted for project {project}: {qobj.count()} ({qobj_i} initial structures)")
 
     # Checking fireworks
     lpad = db_obj.lpad
@@ -176,7 +129,9 @@ def delete_entries(db_obj, project, seed):
     if reply is True:
         click.echo(f"Proceed with the deletion...")
         ndeleted = qobj.delete()
-        click.echo(f"{ndeleted} entries deleted!")
+        click.echo(f"{ndeleted} SHELX entries deleted!")
+        ndeleted = qobj_i.delete()
+        click.echo(f"{ndeleted} initial structure entries deleted!")
     else:
         click.echo(f"Deletion of entries aborted.")
 
