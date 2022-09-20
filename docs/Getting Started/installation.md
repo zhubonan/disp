@@ -27,7 +27,7 @@ converting the results are needed as well.
 Once the above is done, the DISP package can be installed using
 
 ``` none
-pip install git+https://https://github.com/zhubonan/disp
+pip install git+https://github.com/zhubonan/disp
 ```
 
 !!! note
