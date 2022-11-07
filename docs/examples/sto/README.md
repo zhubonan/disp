@@ -138,7 +138,7 @@ since it is expected thtat the ground state structure would take more than one f
 In addition, the specie-wise minimum separations can be set using the knowledge of known ion sizes and bond lengths - the Ti-O bond is known to be at least 1.8 $\unicode{x212B}$ long:
 
 ```
-##MINSEP=1.8-3.0
+#MINSEP=1.8-3.0
 ```
 
 This sets the species-wise minimum separation to be chosen randomly between 1.8 $\unicode{x212B}$ to 3.0 $\unicode{x212B}$.

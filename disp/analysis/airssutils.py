@@ -6,6 +6,7 @@ Collection of function to work with AIRSS
 import re
 from collections import namedtuple
 from subprocess import check_output
+from xml.etree.ElementInclude import include
 
 import numpy as np
 import pandas as pd
@@ -213,27 +214,15 @@ def read_stream(stream):
     """
     lines = []
     atoms_list = []
-    in_file = False
     titl_list = []
     for line in stream:
-        line = line.strip()
-        # Skip any empty lines
-        if not line:
-            continue
-        if "TITL" in line:
-            if in_file is True:
-                # read the current file
-                titl, atoms = _read_res(lines)
-                titl_list.append(titl)
-                atoms_list.append(atoms)
-                lines = []
-            in_file = True
-        if in_file:
-            lines.append(line.strip())
-    # Reached the end parse the last file
-    titl, atoms = _read_res(lines)
-    titl_list.append(titl)
-    atoms_list.append(atoms)
+        if line.startswith("END"):
+            titl, atoms = _read_res(lines)
+            titl_list.append(titl)
+            atoms_list.append(atoms)
+            lines = []
+        else:
+            lines.append(line)
     return titl_list, atoms_list
 
 
@@ -397,6 +386,25 @@ class RESFile:
         with open(fname) as fhandle:
             return cls.from_lines(fhandle.readlines(), include_structure=include_structure, only_titl=only_titl)
 
+    @classmethod
+    def from_packed(cls, fname, include_structure=True, only_titl=False):
+        """
+        Read data from a packed file.
+        A packed file is just a file with SHELX concatenated.
+        """
+        with tqdm() as pbar:
+            with open(fname) as stream:
+                lines = []
+                res_objs = []
+                for line in stream:
+                    if line.startswith("END"):
+                        res_objs.append(cls.from_lines(lines, include_structure=include_structure, only_titl=only_titl))
+                        lines = []
+                        pbar.update(1)
+                    else:
+                        lines.append(line)
+        return res_objs
+
     def __repr__(self):
         string = "<RESFile with label={}, formula={}, enthalpy={}...>"
         return string.format(self.label, self.formula, self.enthalpy)
@@ -404,17 +412,23 @@ class RESFile:
     @property
     def formula(self):
         """Formula of the structure"""
-        return self.composition.formula.replace(" ", "")
+        if self.structure is not None:
+            return self.composition.formula.replace(" ", "")
+        return "Unkonwn"
 
     @property
     def reduced_formula(self):
         """Reduced formula of the structure"""
-        return self.composition.reduced_formula
+        if self.structure is not None:
+            return self.composition.reduced_formula
+        return "Unkonwn"
 
     @property
     def n_formula_units(self):
         """Number of formula units"""
-        return self.composition.get_reduced_formula_and_factor()[1]
+        if self.structure is not None:
+            return self.composition.get_reduced_formula_and_factor()[1]
+        return "Unkonwn"
 
     def to_computed_entry(self):
         """Obtained the ComputedEntry"""
