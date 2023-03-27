@@ -6,13 +6,12 @@ Collection of function to work with AIRSS
 import re
 from collections import namedtuple
 from subprocess import check_output
-from xml.etree.ElementInclude import include
 
 import numpy as np
 import pandas as pd
 from ase import Atoms
 from ase.geometry import cellpar_to_cell
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.ase import AseAtomsAdaptor
 from tqdm import tqdm
@@ -241,12 +240,14 @@ class RESFile:
         The most cases it is best to initialise using class methods such as
         `from_file` or `from_lines`.
 
-        Args:
-            structure: `pymatgen.Structure` instance
-            data: A dictionary contains the underlying data
-            lines: A list of raw lines of the RESFile
+        :param structure: `pymatgen.Structure` instance
+        :param data: A dictionary contains the underlying data
+        :param lines: A list of raw lines of the RESFile
 
         """
+        if isinstance(structure, Atoms):
+            structure = AseAtomsAdaptor.get_structure(structure)
+
         self.structure = structure
         self.lines = lines
 

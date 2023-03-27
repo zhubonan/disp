@@ -16,7 +16,7 @@ from atomate.vasp.powerups import (
     preserve_fworker,
     set_execution_options,
 )
-from pymatgen import Structure
+from pymatgen.core import Structure
 from pymatgen.io.vasp.inputs import Kpoints
 
 from disp.analysis.airssutils import RESFile
