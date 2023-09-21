@@ -19,12 +19,12 @@ flowchart TD
 A[PC] --> |search tasks| B[Server];
 B --> |relaxed geometries| A;
 
-subgraph HPC1
+subgraph HPC2
 W1;
 W2;
 end
 
-subgraph HPC
+subgraph HPC1
 W3;
 W4;
 end
