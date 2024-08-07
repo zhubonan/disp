@@ -3,7 +3,19 @@ import io
 import logging
 import os
 
+from ase import Atoms
 from ase.io import write
+from spglib import get_spacegroup
+
+
+def get_spacegroup_atoms(atoms: Atoms, symprec=1e-5, angle_tolerance=-1):
+
+    return get_spacegroup(
+        (atoms.get_cell(), atoms.get_scaled_positions(), atoms.get_atomic_numbers()),
+        symprec=symprec,
+        angle_tolerance=angle_tolerance,
+    )
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +50,17 @@ def extract_res(fname):
 
 def save_airss_res(atoms, info_dict, fname=None, force_write=False):
     """
-    Save the rusult of a sucessful airss run in the res file
+    Save the result of a successful AIRSS run in the res file
+
+    The info_dict should contain the following keys:
+    - uid: unique identifier of the calculation
+    - P (optional): pressure
+    - V (optional): volume
+    - H (optional): total energy
+    - nat (optional): number of atoms
+    - sym (optional): space group symbol
+    - spin (optional): Total spin
+    - modspin (optional): Total modulus of spin
     """
 
     # Prepare output file
@@ -49,12 +71,16 @@ def save_airss_res(atoms, info_dict, fname=None, force_write=False):
     else:
         fout = open(fname, "w")
 
-    P, V, H = info_dict["P"], info_dict["V"], info_dict["H"]
+    P, V, H = info_dict.get("P", 0.0), info_dict.get("V", atoms.get_volume()), info_dict.get("H")
+    if H is None:
+        H = atoms.get_potential_energy()
     # Get number of atoms, spin
-    nat, sg = info_dict["nat"], info_dict["sym"]
+    nat, sg = info_dict.get("nat", len(atoms)), info_dict.get("sym", f"({get_spacegroup_atoms(atoms)})")
     # Construct title line
     PVH = f" {P:.3f} {V:.3f} {H:.6f} "
-    title = "TITL " + info_dict["uid"] + " " + PVH + " 0 " + " 0 " + " " + str(nat) + " " + sg + " n - 1\n"
+    spin = info_dict.get("spin", 0)
+    modspin = info_dict.get("modspin", 0)
+    title = "TITL " + info_dict["uid"] + " " + PVH + f" {spin} " + f" {modspin} " + " " + str(nat) + " " + sg + " n - 1\n"
 
     # Write to the top of res file
     restmp = info_dict["uid"] + ".rtmp"
