@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-8.2.16">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-8.2.16">
     
     
       
@@ -801,8 +801,8 @@ Al-22022*53-a81769       0.00   210.526       0.091  38 Al           C2         
 <h2 id="using-disp-python-interface-for-analysis">Using DISP python interface for analysis</h2>
 <p>SHELX entries stored in DISP can be pulled and analysed.
 The python code below generates histograms of the energy distribution from these three different seeds.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">disp.database.api</span> <span class="kn">import</span> <span class="n">SearchDB</span>
-<span class="kn">from</span> <span class="nn">disp.analysis.airssutils</span> <span class="kn">import</span> <span class="n">ResFile</span><span class="p">,</span> <span class="n">collect_results_in_df</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">disp.database.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">SearchDB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">disp.analysis.airssutils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResFile</span><span class="p">,</span> <span class="n">collect_results_in_df</span>
 
 <span class="n">sdb</span> <span class="o">=</span> <span class="n">SearchDB</span><span class="o">.</span><span class="n">from_db_file</span><span class="p">(</span><span class="s2">&quot;disp_db.yaml&quot;</span><span class="p">)</span>
 
