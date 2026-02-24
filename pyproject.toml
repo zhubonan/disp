@@ -9,18 +9,18 @@ readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 
 dependencies = [
-            "fireworks>=1.9.5", "numpy>=1.13", "click", "spglib", "ase",
-            "pandas", "mongoengine==0.20.0", "mongomock==3.20.0"
+            "fireworks>=1.9.5", "numpy>=1.21", "click>=8.0", "spglib>=2.0", "ase>=3.22",
+            "pandas>=1.4", "mongoengine>=0.29,<1", "mongomock>=4.1,<5"
         ]
 
 [project.optional-dependencies]
 doc = [
     "mkdocs~=1.2", "mkdocs-material~=8.2.1"
 ]
-test = ["pytest"]
+test = ["pytest>=8,<9"]
 vasp = ["atomate"]
 
 [project.scripts]
